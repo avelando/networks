@@ -1,0 +1,33 @@
+stage,figure_name,description,format,path
+10,top_methods_by_mean_average_precision,Top 15 methods according to mean Average Precision across networks.,png,data/processed/link_prediction/final_figures/top_methods_by_mean_average_precision.png
+10,top_methods_by_mean_average_precision,Top 15 methods according to mean Average Precision across networks.,pdf,data/processed/link_prediction/final_figures/top_methods_by_mean_average_precision.pdf
+10,best_method_by_network,Best method of each network according to mean Average Precision.,png,data/processed/link_prediction/final_figures/best_method_by_network.png
+10,best_method_by_network,Best method of each network according to mean Average Precision.,pdf,data/processed/link_prediction/final_figures/best_method_by_network.pdf
+10,method_network_average_precision_heatmap,Heatmap of mean Average Precision for the top 20 methods across networks.,png,data/processed/link_prediction/final_figures/method_network_average_precision_heatmap.png
+10,method_network_average_precision_heatmap,Heatmap of mean Average Precision for the top 20 methods across networks.,pdf,data/processed/link_prediction/final_figures/method_network_average_precision_heatmap.pdf
+10,family_network_average_precision_heatmap,Heatmap of mean Average Precision by method family and network.,png,data/processed/link_prediction/final_figures/family_network_average_precision_heatmap.png
+10,family_network_average_precision_heatmap,Heatmap of mean Average Precision by method family and network.,pdf,data/processed/link_prediction/final_figures/family_network_average_precision_heatmap.pdf
+10,network_difficulty_score,Difficulty score of each network based on performance and fold sensitivity.,png,data/processed/link_prediction/final_figures/network_difficulty_score.png
+10,network_difficulty_score,Difficulty score of each network based on performance and fold sensitivity.,pdf,data/processed/link_prediction/final_figures/network_difficulty_score.pdf
+10,network_fold_sensitivity,Mean fold standard deviation by network.,png,data/processed/link_prediction/final_figures/network_fold_sensitivity.png
+10,network_fold_sensitivity,Mean fold standard deviation by network.,pdf,data/processed/link_prediction/final_figures/network_fold_sensitivity.pdf
+10,best_method_topk_precision,Mean top-K precision of the best method in each network.,png,data/processed/link_prediction/final_figures/best_method_topk_precision.png
+10,best_method_topk_precision,Mean top-K precision of the best method in each network.,pdf,data/processed/link_prediction/final_figures/best_method_topk_precision.pdf
+10,best_method_topk_error_rate,Mean top-K error rate of the best method in each network.,png,data/processed/link_prediction/final_figures/best_method_topk_error_rate.png
+10,best_method_topk_error_rate,Mean top-K error rate of the best method in each network.,pdf,data/processed/link_prediction/final_figures/best_method_topk_error_rate.pdf
+10,method_family_average_precision,Mean Average Precision by method family.,png,data/processed/link_prediction/final_figures/method_family_average_precision.png
+10,method_family_average_precision,Mean Average Precision by method family.,pdf,data/processed/link_prediction/final_figures/method_family_average_precision.pdf
+10,method_ranking_stability,Methods with the best mean ranks across networks.,png,data/processed/link_prediction/final_figures/method_ranking_stability.png
+10,method_ranking_stability,Methods with the best mean ranks across networks.,pdf,data/processed/link_prediction/final_figures/method_ranking_stability.pdf
+10,best_average_precision_vs_density,Scatter plot relating a structural network metric to the best mean Average Precision obtained in each network.,png,data/processed/link_prediction/final_figures/best_average_precision_vs_density.png
+10,best_average_precision_vs_density,Scatter plot relating a structural network metric to the best mean Average Precision obtained in each network.,pdf,data/processed/link_prediction/final_figures/best_average_precision_vs_density.pdf
+10,best_average_precision_vs_average_degree,Scatter plot relating a structural network metric to the best mean Average Precision obtained in each network.,png,data/processed/link_prediction/final_figures/best_average_precision_vs_average_degree.png
+10,best_average_precision_vs_average_degree,Scatter plot relating a structural network metric to the best mean Average Precision obtained in each network.,pdf,data/processed/link_prediction/final_figures/best_average_precision_vs_average_degree.pdf
+10,best_average_precision_vs_average_clustering,Scatter plot relating a structural network metric to the best mean Average Precision obtained in each network.,png,data/processed/link_prediction/final_figures/best_average_precision_vs_average_clustering.png
+10,best_average_precision_vs_average_clustering,Scatter plot relating a structural network metric to the best mean Average Precision obtained in each network.,pdf,data/processed/link_prediction/final_figures/best_average_precision_vs_average_clustering.pdf
+10,best_average_precision_vs_transitivity,Scatter plot relating a structural network metric to the best mean Average Precision obtained in each network.,png,data/processed/link_prediction/final_figures/best_average_precision_vs_transitivity.png
+10,best_average_precision_vs_transitivity,Scatter plot relating a structural network metric to the best mean Average Precision obtained in each network.,pdf,data/processed/link_prediction/final_figures/best_average_precision_vs_transitivity.pdf
+10,best_average_precision_vs_degree_assortativity,Scatter plot relating a structural network metric to the best mean Average Precision obtained in each network.,png,data/processed/link_prediction/final_figures/best_average_precision_vs_degree_assortativity.png
+10,best_average_precision_vs_degree_assortativity,Scatter plot relating a structural network metric to the best mean Average Precision obtained in each network.,pdf,data/processed/link_prediction/final_figures/best_average_precision_vs_degree_assortativity.pdf
+10,topk_outcome_common_neighbors_profile,Mean number of common neighbors for true positives and false positives in top-K.,png,data/processed/link_prediction/final_figures/topk_outcome_common_neighbors_profile.png
+10,topk_outcome_common_neighbors_profile,Mean number of common neighbors for true positives and false positives in top-K.,pdf,data/processed/link_prediction/final_figures/topk_outcome_common_neighbors_profile.pdf

@@ -1,0 +1,13 @@
+item,value
+python_executable,/usr/bin/python3
+platform,Linux-6.6.122+-x86_64-with-glibc2.35
+processor,x86_64
+machine,x86_64
+package_version__python,3.12.13
+package_version__networkx,3.6.1
+package_version__numpy,2.0.2
+package_version__pandas,2.2.2
+package_version__scipy,1.16.3
+package_version__scikit-learn,1.6.1
+package_version__matplotlib,3.10.0
+package_version__tqdm,4.67.3

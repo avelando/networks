@@ -1,0 +1,98 @@
+stage,description,path
+1,Processed network summary,data/processed/network_summary.csv
+2,Fold metadata,data/processed/link_prediction/fold_metadata.csv
+2,Link prediction fold summary,data/processed/link_prediction/link_prediction_fold_summary.csv
+3,Scoring time summary,data/processed/link_prediction/scored_candidates/scoring_time_summary.csv
+3,Score distribution summary,data/processed/link_prediction/scored_candidates/score_distribution_summary.csv
+3,Method score columns,data/processed/link_prediction/scored_candidates/method_score_columns.csv
+3,Method status table,data/processed/link_prediction/scored_candidates/method_status_table.csv
+3,Method status summary,data/processed/link_prediction/scored_candidates/method_status_summary.csv
+4,Evaluation results by fold,data/processed/link_prediction/evaluation/evaluation_results_by_fold.csv
+4,Cross-validation results,data/processed/link_prediction/evaluation/cross_validation_results.csv
+4,Ranked methods by network,data/processed/link_prediction/evaluation/ranked_methods_by_network.csv
+4,Top methods by network,data/processed/link_prediction/evaluation/top_methods_by_network.csv
+4,Best method per network,data/processed/link_prediction/evaluation/best_method_per_network.csv
+4,Method performance summary,data/processed/link_prediction/evaluation/method_performance_summary.csv
+4,Top ranked predictions,data/processed/link_prediction/evaluation/top_ranked_predictions.csv
+5,Evaluation with structural metrics,data/processed/link_prediction/structural_analysis/evaluation_with_structure.csv
+5,Best method structural summary,data/processed/link_prediction/structural_analysis/best_method_structural_summary.csv
+5,Method family table,data/processed/link_prediction/structural_analysis/method_family_table.csv
+5,Family performance by network,data/processed/link_prediction/structural_analysis/family_performance_by_network.csv
+5,Family performance summary,data/processed/link_prediction/structural_analysis/family_performance_summary.csv
+5,Ranking stability summary,data/processed/link_prediction/structural_analysis/ranking_stability_summary.csv
+5,Method structural correlations,data/processed/link_prediction/structural_analysis/method_structural_correlations.csv
+5,Family structural correlations,data/processed/link_prediction/structural_analysis/family_structural_correlations.csv
+6,Final method performance table,data/processed/link_prediction/final_results/final_method_performance_table.csv
+6,Final best methods by network,data/processed/link_prediction/final_results/final_best_methods_by_network.csv
+6,Final family performance table,data/processed/link_prediction/final_results/final_family_performance_table.csv
+6,Final ranking stability table,data/processed/link_prediction/final_results/final_ranking_stability_table.csv
+6,Final method status summary,data/processed/link_prediction/final_results/final_method_status_summary.csv
+6,Final experiment summary,data/processed/link_prediction/final_results/final_experiment_summary.csv
+6,Output manifest,data/processed/link_prediction/final_results/output_manifest.csv
+7,Fold metric robustness table,data/processed/link_prediction/fold_robustness/fold_metric_robustness_table.csv
+7,Fold rank table,data/processed/link_prediction/fold_robustness/fold_rank_table.csv
+7,Fold rank stability table,data/processed/link_prediction/fold_robustness/fold_rank_stability_table.csv
+7,Most robust methods by network,data/processed/link_prediction/fold_robustness/most_robust_methods_by_network.csv
+7,Method robustness summary,data/processed/link_prediction/fold_robustness/method_robustness_summary.csv
+7,Network fold robustness summary,data/processed/link_prediction/fold_robustness/network_fold_robustness_summary.csv
+7,Performance robustness table,data/processed/link_prediction/fold_robustness/performance_robustness_table.csv
+8,Network method performance summary,data/processed/link_prediction/network_difficulty/network_method_performance_summary.csv
+8,Network best and worst methods,data/processed/link_prediction/network_difficulty/network_best_worst_methods.csv
+8,Network difficulty table,data/processed/link_prediction/network_difficulty/network_difficulty_table.csv
+8,Network difficulty summary,data/processed/link_prediction/network_difficulty/network_difficulty_summary.csv
+8,Network family difficulty table,data/processed/link_prediction/network_difficulty/network_family_difficulty_table.csv
+8,Network difficulty robustness table,data/processed/link_prediction/network_difficulty/network_difficulty_robustness_table.csv
+8,Final network difficulty summary,data/processed/link_prediction/final_results/final_network_difficulty_summary.csv
+9,Top-K prediction detail,data/processed/link_prediction/topk_error_analysis/topk_prediction_detail.csv
+9,Top-K confusion summary,data/processed/link_prediction/topk_error_analysis/topk_confusion_summary.csv
+9,Fixed top-K detail summary,data/processed/link_prediction/topk_error_analysis/topk_fixed_k_detail_summary.csv
+9,Top-K outcome summary,data/processed/link_prediction/topk_error_analysis/topk_outcome_summary.csv
+9,Best method top-K prediction detail,data/processed/link_prediction/topk_error_analysis/best_method_topk_prediction_detail.csv
+9,Best method top-K outcome summary,data/processed/link_prediction/topk_error_analysis/best_method_topk_outcome_summary.csv
+9,Top-K true positive examples,data/processed/link_prediction/topk_error_analysis/topk_true_positive_examples.csv
+9,Top-K false positive examples,data/processed/link_prediction/topk_error_analysis/topk_false_positive_examples.csv
+9,Top-K pair outcome profile,data/processed/link_prediction/topk_error_analysis/topk_pair_outcome_profile.csv
+9,Top-K difficulty summary,data/processed/link_prediction/topk_error_analysis/topk_difficulty_summary.csv
+9,Final top-K error/hit summary,data/processed/link_prediction/final_results/final_topk_error_hit_summary.csv
+10,Final figure index,data/processed/link_prediction/final_figures/final_figure_index.csv
+10,Final figure summary,data/processed/link_prediction/final_figures/final_figure_summary.csv
+10,Final figure - top_methods_by_mean_average_precision (png),data/processed/link_prediction/final_figures/top_methods_by_mean_average_precision.png
+10,Final figure - top_methods_by_mean_average_precision (pdf),data/processed/link_prediction/final_figures/top_methods_by_mean_average_precision.pdf
+10,Final figure - best_method_by_network (png),data/processed/link_prediction/final_figures/best_method_by_network.png
+10,Final figure - best_method_by_network (pdf),data/processed/link_prediction/final_figures/best_method_by_network.pdf
+10,Final figure - method_network_average_precision_heatmap (png),data/processed/link_prediction/final_figures/method_network_average_precision_heatmap.png
+10,Final figure - method_network_average_precision_heatmap (pdf),data/processed/link_prediction/final_figures/method_network_average_precision_heatmap.pdf
+10,Final figure - family_network_average_precision_heatmap (png),data/processed/link_prediction/final_figures/family_network_average_precision_heatmap.png
+10,Final figure - family_network_average_precision_heatmap (pdf),data/processed/link_prediction/final_figures/family_network_average_precision_heatmap.pdf
+10,Final figure - network_difficulty_score (png),data/processed/link_prediction/final_figures/network_difficulty_score.png
+10,Final figure - network_difficulty_score (pdf),data/processed/link_prediction/final_figures/network_difficulty_score.pdf
+10,Final figure - network_fold_sensitivity (png),data/processed/link_prediction/final_figures/network_fold_sensitivity.png
+10,Final figure - network_fold_sensitivity (pdf),data/processed/link_prediction/final_figures/network_fold_sensitivity.pdf
+10,Final figure - best_method_topk_precision (png),data/processed/link_prediction/final_figures/best_method_topk_precision.png
+10,Final figure - best_method_topk_precision (pdf),data/processed/link_prediction/final_figures/best_method_topk_precision.pdf
+10,Final figure - best_method_topk_error_rate (png),data/processed/link_prediction/final_figures/best_method_topk_error_rate.png
+10,Final figure - best_method_topk_error_rate (pdf),data/processed/link_prediction/final_figures/best_method_topk_error_rate.pdf
+10,Final figure - method_family_average_precision (png),data/processed/link_prediction/final_figures/method_family_average_precision.png
+10,Final figure - method_family_average_precision (pdf),data/processed/link_prediction/final_figures/method_family_average_precision.pdf
+10,Final figure - method_ranking_stability (png),data/processed/link_prediction/final_figures/method_ranking_stability.png
+10,Final figure - method_ranking_stability (pdf),data/processed/link_prediction/final_figures/method_ranking_stability.pdf
+10,Final figure - best_average_precision_vs_density (png),data/processed/link_prediction/final_figures/best_average_precision_vs_density.png
+10,Final figure - best_average_precision_vs_density (pdf),data/processed/link_prediction/final_figures/best_average_precision_vs_density.pdf
+10,Final figure - best_average_precision_vs_average_degree (png),data/processed/link_prediction/final_figures/best_average_precision_vs_average_degree.png
+10,Final figure - best_average_precision_vs_average_degree (pdf),data/processed/link_prediction/final_figures/best_average_precision_vs_average_degree.pdf
+10,Final figure - best_average_precision_vs_average_clustering (png),data/processed/link_prediction/final_figures/best_average_precision_vs_average_clustering.png
+10,Final figure - best_average_precision_vs_average_clustering (pdf),data/processed/link_prediction/final_figures/best_average_precision_vs_average_clustering.pdf
+10,Final figure - best_average_precision_vs_transitivity (png),data/processed/link_prediction/final_figures/best_average_precision_vs_transitivity.png
+10,Final figure - best_average_precision_vs_transitivity (pdf),data/processed/link_prediction/final_figures/best_average_precision_vs_transitivity.pdf
+10,Final figure - best_average_precision_vs_degree_assortativity (png),data/processed/link_prediction/final_figures/best_average_precision_vs_degree_assortativity.png
+10,Final figure - best_average_precision_vs_degree_assortativity (pdf),data/processed/link_prediction/final_figures/best_average_precision_vs_degree_assortativity.pdf
+10,Final figure - topk_outcome_common_neighbors_profile (png),data/processed/link_prediction/final_figures/topk_outcome_common_neighbors_profile.png
+10,Final figure - topk_outcome_common_neighbors_profile (pdf),data/processed/link_prediction/final_figures/topk_outcome_common_neighbors_profile.pdf
+11,Reproducibility environment,data/processed/link_prediction/reproducibility/reproducibility_environment.csv
+11,Reproducibility parameters,data/processed/link_prediction/reproducibility/reproducibility_parameters.csv
+11,Pipeline integrity checks,data/processed/link_prediction/reproducibility/pipeline_integrity_checks.csv
+11,Generated file inventory,data/processed/link_prediction/reproducibility/generated_file_inventory.csv
+11,Generated file inventory summary,data/processed/link_prediction/reproducibility/generated_file_inventory_summary.csv
+11,Final reproducibility summary,data/processed/link_prediction/final_results/final_reproducibility_summary.csv
+11,ZIP export manifest,data/processed/link_prediction/final_results/zip_export_manifest.csv
+11,ZIP export summary,data/processed/link_prediction/final_results/zip_export_summary.csv

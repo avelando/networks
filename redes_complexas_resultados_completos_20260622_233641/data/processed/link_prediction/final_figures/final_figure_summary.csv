@@ -1,0 +1,17 @@
+figure_name,description,formats,file_count
+best_average_precision_vs_average_clustering,Scatter plot relating a structural network metric to the best mean Average Precision obtained in each network.,pdf|png,2
+best_average_precision_vs_average_degree,Scatter plot relating a structural network metric to the best mean Average Precision obtained in each network.,pdf|png,2
+best_average_precision_vs_degree_assortativity,Scatter plot relating a structural network metric to the best mean Average Precision obtained in each network.,pdf|png,2
+best_average_precision_vs_density,Scatter plot relating a structural network metric to the best mean Average Precision obtained in each network.,pdf|png,2
+best_average_precision_vs_transitivity,Scatter plot relating a structural network metric to the best mean Average Precision obtained in each network.,pdf|png,2
+best_method_by_network,Best method of each network according to mean Average Precision.,pdf|png,2
+best_method_topk_error_rate,Mean top-K error rate of the best method in each network.,pdf|png,2
+best_method_topk_precision,Mean top-K precision of the best method in each network.,pdf|png,2
+family_network_average_precision_heatmap,Heatmap of mean Average Precision by method family and network.,pdf|png,2
+method_family_average_precision,Mean Average Precision by method family.,pdf|png,2
+method_network_average_precision_heatmap,Heatmap of mean Average Precision for the top 20 methods across networks.,pdf|png,2
+method_ranking_stability,Methods with the best mean ranks across networks.,pdf|png,2
+network_difficulty_score,Difficulty score of each network based on performance and fold sensitivity.,pdf|png,2
+network_fold_sensitivity,Mean fold standard deviation by network.,pdf|png,2
+top_methods_by_mean_average_precision,Top 15 methods according to mean Average Precision across networks.,pdf|png,2
+topk_outcome_common_neighbors_profile,Mean number of common neighbors for true positives and false positives in top-K.,pdf|png,2

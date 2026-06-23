@@ -1,0 +1,6 @@
+network,original_nodes,original_edges,visualized_nodes,visualized_edges,is_full_network,image_path
+ego-Facebook,4039,88234,4039,88234,True,data/processed/network_visualizations/ego-Facebook_full_topology.png
+ca-GrQc,4158,13422,4158,13422,True,data/processed/network_visualizations/ca-GrQc_full_topology.png
+ca-HepTh,8638,24806,8638,24806,True,data/processed/network_visualizations/ca-HepTh_full_topology.png
+email-Eu-core,986,16064,986,16064,True,data/processed/network_visualizations/email-Eu-core_full_topology.png
+power-grid,4941,6594,4941,6594,True,data/processed/network_visualizations/power-grid_full_topology.png

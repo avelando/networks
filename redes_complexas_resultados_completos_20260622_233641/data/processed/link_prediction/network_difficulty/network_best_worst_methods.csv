@@ -1,0 +1,6 @@
+network,best_method,best_method_family,best_score_column,best_primary_metric,second_best_method,second_best_primary_metric,worst_method,worst_method_family,worst_score_column,worst_primary_metric,top1_top2_gap,best_worst_gap
+ca-GrQc,SRW-l3,quasi_local_walk,score_srw_l3,0.9830800654985229,LPI-beta-0.001,0.9819399924454345,PA,degree_based,score_preferential_attachment,0.8432241530212222,0.0011400730530883862,0.13985591247730067
+ca-HepTh,SRW-l3,quasi_local_walk,score_srw_l3,0.9705663685553445,LPI-beta-0.001,0.9696835205628995,CAR-RA,enhanced_local,score_car_resource_allocation,0.7413756896258117,0.0008828479924449795,0.22919067892953282
+ego-Facebook,SRW-l3,quasi_local_walk,score_srw_l3,0.9952459932979121,RA,0.9950962527954685,PA,degree_based,score_preferential_attachment,0.8401621123918469,0.00014974050244354054,0.15508388090606517
+email-Eu-core,SRW-l3,quasi_local_walk,score_srw_l3,0.9558735101550703,LNB-RA,0.95194028371176,LLHN,local_similarity,score_local_leicht_holme_newman,0.7705780236239825,0.003933226443310289,0.18529548653108774
+power-grid,SRW-l3,quasi_local_walk,score_srw_l3,0.7794252168459441,LPI-beta-0.001,0.7789923861900008,CAR-RA,enhanced_local,score_car_resource_allocation,0.5305355671518813,0.00043283065594335035,0.2488896496940628
