@@ -1,2 +1,159 @@
-families: {}
-methods: {}
+families:
+  local_similarity:
+    name: Local similarity
+
+  degree_based:
+    name: Degree-based local
+
+  local_bayesian:
+    name: Local Bayesian
+
+  enhanced_local:
+    name: Enhanced local
+
+  quasi_local_path:
+    name: Path-based quasi-local
+
+  quasi_local_walk:
+    name: Walk-based quasi-local
+
+
+methods:
+  cn:
+    name: CN
+    family: local_similarity
+    enabled: true
+    parameters: {}
+
+  aa:
+    name: AA
+    family: local_similarity
+    enabled: true
+    parameters: {}
+
+  ra:
+    name: RA
+    family: local_similarity
+    enabled: true
+    parameters: {}
+
+  ja:
+    name: JA
+    family: local_similarity
+    enabled: true
+    parameters: {}
+
+  sa:
+    name: SA
+    family: local_similarity
+    enabled: true
+    parameters: {}
+
+  so:
+    name: SO
+    family: local_similarity
+    enabled: true
+    parameters: {}
+
+  hpi:
+    name: HPI
+    family: local_similarity
+    enabled: true
+    parameters: {}
+
+  hdi:
+    name: HDI
+    family: local_similarity
+    enabled: true
+    parameters: {}
+
+  llhn:
+    name: LLHN
+    family: local_similarity
+    enabled: true
+    parameters: {}
+
+  pa:
+    name: PA
+    family: degree_based
+    enabled: true
+    parameters: {}
+
+  lnb_ra:
+    name: LNB-RA
+    family: local_bayesian
+    enabled: true
+    parameters: {}
+
+  ra_cni:
+    name: RA-CNI
+    family: enhanced_local
+    enabled: true
+    parameters: {}
+
+  ia2:
+    name: IA2
+    family: enhanced_local
+    enabled: true
+    parameters: {}
+
+  car_ra:
+    name: CAR-RA
+    family: enhanced_local
+    enabled: true
+    parameters: {}
+
+  fsw:
+    name: FSW
+    family: enhanced_local
+    enabled: true
+    parameters: {}
+
+  lpi:
+    name: LPI-beta-0.001
+    family: quasi_local_path
+    enabled: true
+    parameters:
+      beta: 0.001
+      length: 3
+    sensitivity:
+      beta:
+        - 0.1
+        - 0.01
+        - 0.001
+
+  lrw:
+    name: LRW-l3
+    family: quasi_local_walk
+    enabled: true
+    parameters:
+      steps: 3
+    sensitivity:
+      steps:
+        - 3
+        - 5
+        - 7
+
+  srw:
+    name: SRW-l3
+    family: quasi_local_walk
+    enabled: true
+    parameters:
+      steps: 3
+    sensitivity:
+      steps:
+        - 3
+        - 5
+        - 7
+
+  pfp:
+    name: PFP-l3
+    family: quasi_local_walk
+    enabled: true
+    parameters:
+      steps: 3
+    sensitivity:
+      steps:
+        - 3
+        - 5
+        - 7
