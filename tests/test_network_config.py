@@ -3,6 +3,21 @@ from collections import Counter
 from link_prediction.config import load_networks_config
 
 
+BASELINE_NETWORKS = {
+    "ego_facebook",
+    "ca_grqc",
+    "ca_hepth",
+    "email_eu_core",
+    "power_grid",
+}
+
+ADDITIONAL_NETWORKS = {
+    "socfb_middlebury45",
+    "email_univ",
+    "power_1138_bus",
+}
+
+
 def test_revision_benchmark_is_balanced():
     config = load_networks_config()
 
@@ -25,26 +40,23 @@ def test_revision_benchmark_is_balanced():
     }
 
 
-def test_original_networks_are_preserved():
+def test_revision_preserves_published_networks():
     config = load_networks_config()
 
-    original = set(config["benchmarks"]["original"])
     revision = set(config["benchmarks"]["revision"])
 
-    assert original <= revision
-    assert len(original) == 5
+    assert BASELINE_NETWORKS <= revision
+
+    for network_id in BASELINE_NETWORKS:
+        assert config["networks"][network_id]["role"] == "original"
 
 
-def test_only_three_networks_are_added():
+def test_revision_adds_only_selected_networks():
     config = load_networks_config()
 
-    original = set(config["benchmarks"]["original"])
     revision = set(config["benchmarks"]["revision"])
 
-    added = revision - original
+    assert revision - BASELINE_NETWORKS == ADDITIONAL_NETWORKS
 
-    assert added == {
-        "socfb_middlebury45",
-        "email_univ",
-        "power_1138_bus",
-    }
+    for network_id in ADDITIONAL_NETWORKS:
+        assert config["networks"][network_id]["role"] == "additional"

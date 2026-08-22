@@ -39,3 +39,13 @@ results/runtime/*
 # Temporary files
 *.tmp
 *.log
+
+# Legacy artifacts
+archive/
+code.py
+code.ipynb
+redes_complexas_resultados_completos_*/
+
+# Runtime metadata
+results/metadata/*.json
+!results/metadata/.gitkeep

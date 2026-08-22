@@ -8,6 +8,7 @@ from link_prediction.analysis import (
     graph_profile,
 )
 from link_prediction.config import (
+    PROJECT_ROOT,
     RAW_DATA_DIR,
     SUMMARY_RESULTS_DIR,
     ensure_project_directories,
@@ -23,6 +24,12 @@ from link_prediction.preprocessing import (
     save_processed_graph,
     standardize_graph,
 )
+
+
+def project_relative_path(path) -> str:
+    return path.resolve().relative_to(
+        PROJECT_ROOT.resolve()
+    ).as_posix()
 
 
 def prepare_network(
@@ -90,8 +97,8 @@ def prepare_network(
         "source_url": source["url"],
         "source_file": source["filename"],
         "source_sha256": compute_sha256(downloaded_path),
-        "graph_file": str(graph_path),
-        "processed_file": str(processed_path),
+        "graph_file": project_relative_path(graph_path),
+        "processed_file": project_relative_path(processed_path),
     }
 
     return processed_graph, profile, manifest

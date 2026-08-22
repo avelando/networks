@@ -1,11 +1,4 @@
 benchmarks:
-  original:
-    - ego_facebook
-    - ca_grqc
-    - ca_hepth
-    - email_eu_core
-    - power_grid
-
   revision:
     - ego_facebook
     - socfb_middlebury45
