@@ -49,14 +49,12 @@ networks:
       filename: socfb-Middlebury45.zip
       archive: zip
       member_patterns:
+        - "*.mtx"
         - "*.edges"
       sha256: null
     parser:
-      type: edgelist
+      type: matrix_market
       directed: false
-      comments: "%"
-      delimiter: null
-      nodetype: int
 
   ca_grqc:
     name: ca-GrQc
@@ -130,14 +128,13 @@ networks:
       filename: email-univ.zip
       archive: zip
       member_patterns:
+        - "*.mtx"
         - "*.edges"
       sha256: null
+
     parser:
-      type: edgelist
+      type: matrix_market
       directed: false
-      comments: "%"
-      delimiter: null
-      nodetype: int
 
   power_grid:
     name: power-grid
@@ -173,11 +170,10 @@ networks:
       filename: power-1138-bus.zip
       archive: zip
       member_patterns:
+        - "*.mtx"
         - "*.edges"
       sha256: null
+
     parser:
-      type: edgelist
+      type: matrix_market
       directed: false
-      comments: "%"
-      delimiter: null
-      nodetype: int

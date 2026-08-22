@@ -8,6 +8,8 @@ from typing import Any
 import networkx as nx
 import pandas as pd
 import requests
+from scipy.io import mmread
+from scipy.sparse import csr_array, issparse
 
 from link_prediction.config import RAW_DATA_DIR
 
@@ -283,6 +285,45 @@ def find_edge_columns(
     return dataframe.columns[0], dataframe.columns[1]
 
 
+def load_matrix_market_graph(
+    path: Path,
+    directed: bool = False,
+) -> nx.Graph:
+    matrix = mmread(path)
+
+    if issparse(matrix):
+        matrix = matrix.tocsr()
+    else:
+        matrix = csr_array(matrix)
+
+    if matrix.shape[0] != matrix.shape[1]:
+        raise ValueError(
+            f"Matrix Market graph must be square: "
+            f"{path} has shape {matrix.shape}"
+        )
+
+    graph_class = nx.DiGraph if directed else nx.Graph
+
+    weighted_graph = nx.from_scipy_sparse_array(
+        matrix,
+        create_using=graph_class(),
+    )
+
+    graph = graph_class()
+
+    graph.add_nodes_from(
+        int(node) + 1
+        for node in weighted_graph.nodes()
+    )
+
+    graph.add_edges_from(
+        (int(source) + 1, int(target) + 1)
+        for source, target in weighted_graph.edges()
+    )
+
+    return graph
+
+
 def load_graph(
     path: Path,
     parser_config: dict[str, Any],
@@ -300,6 +341,12 @@ def load_graph(
             nodetype=resolve_nodetype(parser_config.get("nodetype")),
             create_using=graph_class(),
             data=False,
+        )
+
+    if parser_type == "matrix_market":
+        return load_matrix_market_graph(
+            path=path,
+            directed=directed,
         )
 
     if parser_type == "csv":
