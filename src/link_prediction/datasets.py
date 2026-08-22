@@ -73,9 +73,8 @@ def extract_gzip(
 
     destination.parent.mkdir(parents=True, exist_ok=True)
 
-    with gzip.open(source, "rb") as input_file:
-        with destination.open("wb") as output_file:
-            shutil.copyfileobj(input_file, output_file)
+    with gzip.open(source, "rb") as input_file, destination.open("wb") as output_file:
+        shutil.copyfileobj(input_file, output_file)
 
     return destination
 

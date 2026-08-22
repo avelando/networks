@@ -1,9 +1,8 @@
-from functools import lru_cache
+from functools import cache
 from pathlib import Path
 from typing import Any
 
 import yaml
-
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
@@ -18,7 +17,7 @@ SUMMARY_RESULTS_DIR = RESULTS_DIR / "summaries"
 METADATA_RESULTS_DIR = RESULTS_DIR / "metadata"
 
 
-@lru_cache(maxsize=None)
+@cache
 def load_yaml_config(filename: str) -> dict[str, Any]:
     path = CONFIG_DIR / filename
 
