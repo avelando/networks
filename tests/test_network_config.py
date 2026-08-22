@@ -2,7 +2,6 @@ from collections import Counter
 
 from link_prediction.config import load_networks_config
 
-
 BASELINE_NETWORKS = {
     "ego_facebook",
     "ca_grqc",
