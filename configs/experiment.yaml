@@ -4,11 +4,23 @@ experiment:
 
 evaluation:
   primary_metric: average_precision
-  metrics:
+
+  ranking_metrics:
     - average_precision
     - roc_auc
+
+  cutoff:
+    strategy: positives_per_fold
+
+  cutoff_metrics:
     - precision
+    - recall
+    - f1
     - ndcg
+
+  ranking:
+    tie_breaker: candidate_id
+    stable_sort: true
 
 negative_sampling:
   primary_ratio: 1

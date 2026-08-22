@@ -14,3 +14,26 @@ def test_experiment_configuration():
     assert config["experiment"]["random_seed"] == 42
     assert config["experiment"]["n_folds"] == 5
     assert config["negative_sampling"]["primary_ratio"] == 1
+    assert (
+        config["evaluation"]["primary_metric"]
+        == "average_precision"
+    )
+
+    assert (
+        config["evaluation"]["cutoff"]["strategy"]
+        == "positives_per_fold"
+    )
+
+    assert set(
+        config["evaluation"]["cutoff_metrics"]
+    ) == {
+        "precision",
+        "recall",
+        "f1",
+        "ndcg",
+    }
+
+    assert (
+        config["evaluation"]["ranking"]["tie_breaker"]
+        == "candidate_id"
+    )
