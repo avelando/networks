@@ -127,3 +127,61 @@ def test_cutoff_defaults_to_number_of_positives():
     assert metrics[
         "cutoff"
     ] == 2
+
+
+def test_average_precision_is_invariant_to_tie_break_order():
+    first = evaluate_ranking(
+        labels=[
+            1,
+            0,
+            0,
+            1,
+        ],
+        scores=[
+            1.0,
+            0.5,
+            0.5,
+            0.5,
+        ],
+        candidate_ids=[
+            0,
+            1,
+            2,
+            3,
+        ],
+    )
+
+    second = evaluate_ranking(
+        labels=[
+            1,
+            0,
+            0,
+            1,
+        ],
+        scores=[
+            1.0,
+            0.5,
+            0.5,
+            0.5,
+        ],
+        candidate_ids=[
+            0,
+            3,
+            2,
+            1,
+        ],
+    )
+
+    assert (
+        first["average_precision"]
+        == pytest.approx(
+            second[
+                "average_precision"
+            ]
+        )
+    )
+
+    assert (
+        first["precision"]
+        != second["precision"]
+    )

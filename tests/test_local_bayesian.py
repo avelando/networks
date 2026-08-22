@@ -35,7 +35,7 @@ def test_lnb_roles():
     )
 
     assert roles["2"] == pytest.approx(
-        0.25
+        1 / 7
     )
 
     assert roles["0"] == pytest.approx(
@@ -43,7 +43,7 @@ def test_lnb_roles():
     )
 
     assert roles["3"] == pytest.approx(
-        0.5
+        1 / 3
     )
 
 
@@ -87,7 +87,7 @@ def test_lnb_ra_score():
     expected = (
         math.log(
             prior_odds
-            * 0.25
+            * (1 / 7)
         )
         / 3
     )
@@ -104,6 +104,27 @@ def test_lnb_ra_score():
         "lnb_ra",
     ] == pytest.approx(
         0.0
+    )
+
+
+def test_lnb_role_uses_martinez_smoothing():
+    graph = nx.Graph()
+
+    graph.add_edges_from(
+        [
+            ("w", "a"),
+            ("w", "b"),
+            ("w", "c"),
+            ("a", "b"),
+        ]
+    )
+
+    roles = compute_lnb_roles(
+        graph
+    )
+
+    assert roles["w"] == pytest.approx(
+        3 / 5
     )
 
 

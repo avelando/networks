@@ -5,6 +5,10 @@ experiment:
 evaluation:
   primary_metric: average_precision
 
+  average_precision:
+    implementation: sklearn
+    definition: non_interpolated_precision_recall
+
   ranking_metrics:
     - average_precision
     - roc_auc

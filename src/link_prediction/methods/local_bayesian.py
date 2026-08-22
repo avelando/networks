@@ -41,10 +41,10 @@ def compute_lnb_roles(
         )
 
         roles[node] = (
-            connected_neighbor_pairs
+            2.0 * connected_neighbor_pairs
             + 1.0
         ) / (
-            disconnected_neighbor_pairs
+            2.0 * disconnected_neighbor_pairs
             + 1.0
         )
 

@@ -37,3 +37,21 @@ def test_experiment_configuration():
         config["evaluation"]["ranking"]["tie_breaker"]
         == "candidate_id"
     )
+
+    assert (
+        config["evaluation"][
+            "average_precision"
+        ][
+            "implementation"
+        ]
+        == "sklearn"
+    )
+
+    assert (
+        config["evaluation"][
+            "average_precision"
+        ][
+            "definition"
+        ]
+        == "non_interpolated_precision_recall"
+    )

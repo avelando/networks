@@ -2,7 +2,10 @@ from collections.abc import Sequence
 
 import numpy as np
 import pandas as pd
-from sklearn.metrics import roc_auc_score
+from sklearn.metrics import (
+    average_precision_score,
+    roc_auc_score,
+)
 
 
 def rank_candidates(
@@ -43,43 +46,6 @@ def rank_candidates(
         ascending=[False, True],
         kind="mergesort",
     ).reset_index(drop=True)
-
-
-def average_precision_from_ranking(
-    ranked_labels: Sequence[int],
-) -> float:
-    labels = np.asarray(
-        ranked_labels,
-        dtype=int,
-    )
-
-    positive_count = int(
-        labels.sum()
-    )
-
-    if positive_count == 0:
-        raise ValueError(
-            "Average Precision requires "
-            "at least one positive candidate."
-        )
-
-    cumulative_positives = np.cumsum(
-        labels
-    )
-
-    ranks = np.arange(
-        1,
-        len(labels) + 1,
-    )
-
-    precisions = (
-        cumulative_positives / ranks
-    )
-
-    return float(
-        (precisions * labels).sum()
-        / positive_count
-    )
 
 
 def ndcg_at_k(
@@ -229,8 +195,11 @@ def evaluate_ranking(
 
     return {
         "average_precision":
-            average_precision_from_ranking(
-                ranked_labels
+            float(
+                average_precision_score(
+                    raw_labels,
+                    raw_scores,
+                )
             ),
         "roc_auc":
             float(
