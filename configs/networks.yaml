@@ -157,7 +157,7 @@ networks:
     parser:
       type: csv
       directed: false
-      separator: ","
+      separator: auto
       source_column: null
       target_column: null
 

@@ -229,6 +229,60 @@ def resolve_nodetype(value: str | None):
     return str
 
 
+def normalize_column_name(column_name: str) -> str:
+    return (
+        str(column_name)
+        .strip()
+        .lower()
+        .replace("#", "")
+        .strip()
+    )
+
+
+def find_edge_columns(
+    dataframe: pd.DataFrame,
+) -> tuple[str, str]:
+    normalized_columns = [
+        normalize_column_name(column)
+        for column in dataframe.columns
+    ]
+
+    possible_column_pairs = [
+        ("source", "target"),
+        ("src", "dst"),
+        ("from", "to"),
+        ("node1", "node2"),
+        ("vertex1", "vertex2"),
+        ("v1", "v2"),
+        ("u", "v"),
+        ("i", "j"),
+    ]
+
+    for source_candidate, target_candidate in possible_column_pairs:
+        if (
+            source_candidate in normalized_columns
+            and target_candidate in normalized_columns
+        ):
+            source_index = normalized_columns.index(
+                source_candidate
+            )
+            target_index = normalized_columns.index(
+                target_candidate
+            )
+
+            return (
+                dataframe.columns[source_index],
+                dataframe.columns[target_index],
+            )
+
+    if dataframe.shape[1] < 2:
+        raise ValueError(
+            "The edge table must contain at least two columns."
+        )
+
+    return dataframe.columns[0], dataframe.columns[1]
+
+
 def load_graph(
     path: Path,
     parser_config: dict[str, Any],
@@ -249,20 +303,27 @@ def load_graph(
         )
 
     if parser_type == "csv":
-        separator = parser_config.get("separator", ",")
+        separator = parser_config.get("separator", "auto")
+
+        if separator == "auto" or separator is None:
+            dataframe = pd.read_csv(
+                path,
+                sep=None,
+                engine="python",
+            )
+        else:
+            dataframe = pd.read_csv(
+                path,
+                sep=separator,
+            )
+
         source_column = parser_config.get("source_column")
         target_column = parser_config.get("target_column")
 
-        dataframe = pd.read_csv(path, sep=separator)
-
         if source_column is None or target_column is None:
-            if dataframe.shape[1] < 2:
-                raise ValueError(
-                    f"CSV requires at least two columns: {path}"
-                )
-
-            source_column = dataframe.columns[0]
-            target_column = dataframe.columns[1]
+            source_column, target_column = find_edge_columns(
+                dataframe
+            )
 
         return nx.from_pandas_edgelist(
             dataframe,
@@ -270,7 +331,7 @@ def load_graph(
             target=target_column,
             create_using=graph_class(),
         )
-
+    
     if parser_type == "pajek":
         return nx.read_pajek(path)
 
