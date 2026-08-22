@@ -25,3 +25,4 @@ graph:
 
 connectivity:
   preserve_spanning_tree: true
+  spanning_tree_strategy: seeded_randomized_kruskal
