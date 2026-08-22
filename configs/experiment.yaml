@@ -1,0 +1,27 @@
+experiment:
+  random_seed: 42
+  n_folds: 5
+
+evaluation:
+  primary_metric: average_precision
+  metrics:
+    - average_precision
+    - roc_auc
+    - precision
+    - ndcg
+
+negative_sampling:
+  primary_ratio: 1
+  robustness_ratios:
+    - 1
+    - 5
+    - 10
+
+graph:
+  directed: false
+  weighted: false
+  remove_self_loops: true
+  use_largest_connected_component: true
+
+connectivity:
+  preserve_spanning_tree: true

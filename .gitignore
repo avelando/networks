@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+
+# Virtual environment
+.venv/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+
+# Downloaded and generated data
+data/raw/*
+data/processed/*
+data/folds/*
+
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+!data/folds/.gitkeep
+
+# Large intermediate experiment results
+results/evaluations/*
+results/robustness/*
+results/runtime/*
+
+!results/evaluations/.gitkeep
+!results/robustness/.gitkeep
+!results/runtime/.gitkeep
+
+# Temporary files
+*.tmp
+*.log
