@@ -124,8 +124,8 @@ networks:
     description: University email communication network
     enabled: true
     source:
-      url: https://nrvis.com/download/data/email/email-univ.zip
-      filename: email-univ.zip
+      url: https://nrvis.com/download/data/ia/ia-email-univ.zip
+      filename: ia-email-univ.zip
       archive: zip
       member_patterns:
         - "*.mtx"

@@ -289,7 +289,10 @@ def load_matrix_market_graph(
     path: Path,
     directed: bool = False,
 ) -> nx.Graph:
-    matrix = mmread(path)
+    matrix = mmread(
+        path,
+        spmatrix=False,
+    )
 
     if issparse(matrix):
         matrix = matrix.tocsr()

@@ -9,6 +9,7 @@ def test_collect_environment_metadata():
     assert "logical_cpus" in metadata
     assert "git_commit" in metadata
     assert "packages" in metadata
+    assert "git_dirty" in metadata
 
     assert metadata["python_version"]
     assert metadata["logical_cpus"] is not None

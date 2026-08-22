@@ -42,6 +42,20 @@ def get_git_commit() -> str | None:
         return None
 
 
+def get_git_dirty_state() -> bool | None:
+    try:
+        result = subprocess.run(
+            ["git", "status", "--porcelain"],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+
+        return bool(result.stdout.strip())
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        return None
+
+
 def collect_environment_metadata() -> dict[str, Any]:
     return {
         "python_version": platform.python_version(),
@@ -51,6 +65,7 @@ def collect_environment_metadata() -> dict[str, Any]:
         "processor": platform.processor(),
         "logical_cpus": os.cpu_count(),
         "git_commit": get_git_commit(),
+        "git_dirty": get_git_dirty_state(),
         "packages": {
             package: get_package_version(package)
             for package in PACKAGES
