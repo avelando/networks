@@ -1,2 +1,136 @@
-benchmarks: {}
-networks: {}
+benchmarks:
+  revision:
+    - yst
+    - cel
+    - inf
+    - bck
+    - hmt
+    - usa
+    - nsc
+
+networks:
+  yst:
+    name: YST
+    domain: biological
+    description: budding yeast protein-protein interaction network
+    reference: Bu et al. 2003
+    enabled: true
+    source:
+      url: null
+      filename: null
+      archive: null
+      extracted_filename: null
+      member: null
+      sha256: null
+    parser:
+      type: null
+      directed: false
+      nodetype: int
+
+  cel:
+    name: CEL
+    domain: biological
+    description: Caenorhabditis elegans neural network
+    reference: Watts and Strogatz 1998
+    enabled: true
+    source:
+      url: null
+      filename: null
+      archive: null
+      extracted_filename: null
+      member: null
+      sha256: null
+    parser:
+      type: null
+      directed: true
+      nodetype: int
+
+  inf:
+    name: INF
+    domain: social
+    description: face-to-face contact network
+    reference: Isella et al. 2011
+    enabled: true
+    source:
+      url: null
+      filename: null
+      archive: null
+      extracted_filename: null
+      member: null
+      sha256: null
+    parser:
+      type: null
+      directed: false
+      nodetype: int
+
+  bck:
+    name: BCK
+    domain: informational
+    description: political book co-purchasing network
+    reference: Krebs 2008
+    enabled: true
+    source:
+      url: null
+      filename: null
+      archive: null
+      extracted_filename: null
+      member: null
+      sha256: null
+    parser:
+      type: null
+      directed: false
+      nodetype: str
+
+  hmt:
+    name: HMT
+    domain: social
+    description: Hamsterster friendship network
+    reference: Kunegis 2014
+    enabled: true
+    source:
+      url: null
+      filename: null
+      archive: null
+      extracted_filename: null
+      member: null
+      sha256: null
+    parser:
+      type: null
+      directed: false
+      nodetype: int
+
+  usa:
+    name: USA
+    domain: transportation
+    description: North American air transportation network
+    reference: Batagelj and Mrvar 2006
+    enabled: true
+    source:
+      url: null
+      filename: null
+      archive: null
+      extracted_filename: null
+      member: null
+      sha256: null
+    parser:
+      type: null
+      directed: false
+      nodetype: int
+
+  nsc:
+    name: NSC
+    domain: scientific_collaboration
+    description: network science coauthorship network
+    reference: Newman 2006
+    enabled: true
+    source:
+      url: null
+      filename: null
+      archive: null
+      extracted_filename: null
+      member: null
+      sha256: null
+    parser:
+      type: null
+      directed: false
+      nodetype: int
