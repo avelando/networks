@@ -1,136 +1,183 @@
 benchmarks:
+  original:
+    - ego_facebook
+    - ca_grqc
+    - ca_hepth
+    - email_eu_core
+    - power_grid
+
   revision:
-    - yst
-    - cel
-    - inf
-    - bck
-    - hmt
-    - usa
-    - nsc
+    - ego_facebook
+    - socfb_middlebury45
+    - ca_grqc
+    - ca_hepth
+    - email_eu_core
+    - email_univ
+    - power_grid
+    - power_1138_bus
 
 networks:
-  yst:
-    name: YST
-    domain: biological
-    description: budding yeast protein-protein interaction network
-    reference: Bu et al. 2003
-    enabled: true
-    source:
-      url: null
-      filename: null
-      archive: null
-      extracted_filename: null
-      member: null
-      sha256: null
-    parser:
-      type: null
-      directed: false
-      nodetype: int
-
-  cel:
-    name: CEL
-    domain: biological
-    description: Caenorhabditis elegans neural network
-    reference: Watts and Strogatz 1998
-    enabled: true
-    source:
-      url: null
-      filename: null
-      archive: null
-      extracted_filename: null
-      member: null
-      sha256: null
-    parser:
-      type: null
-      directed: true
-      nodetype: int
-
-  inf:
-    name: INF
+  ego_facebook:
+    name: ego-Facebook
     domain: social
-    description: face-to-face contact network
-    reference: Isella et al. 2011
+    role: original
+    repository: SNAP
+    description: Facebook social circles network
     enabled: true
     source:
-      url: null
-      filename: null
-      archive: null
-      extracted_filename: null
-      member: null
+      url: https://snap.stanford.edu/data/facebook_combined.txt.gz
+      filename: facebook_combined.txt.gz
+      archive: gzip
+      extracted_filename: facebook_combined.txt
       sha256: null
     parser:
-      type: null
+      type: edgelist
       directed: false
+      comments: "#"
+      delimiter: null
       nodetype: int
 
-  bck:
-    name: BCK
-    domain: informational
-    description: political book co-purchasing network
-    reference: Krebs 2008
-    enabled: true
-    source:
-      url: null
-      filename: null
-      archive: null
-      extracted_filename: null
-      member: null
-      sha256: null
-    parser:
-      type: null
-      directed: false
-      nodetype: str
-
-  hmt:
-    name: HMT
+  socfb_middlebury45:
+    name: socfb-Middlebury45
     domain: social
-    description: Hamsterster friendship network
-    reference: Kunegis 2014
+    role: additional
+    repository: Network Data Repository
+    description: Facebook university friendship network
     enabled: true
     source:
-      url: null
-      filename: null
-      archive: null
-      extracted_filename: null
-      member: null
+      url: https://nrvis.com/download/data/socfb/socfb-Middlebury45.zip
+      filename: socfb-Middlebury45.zip
+      archive: zip
+      member_patterns:
+        - "*.edges"
       sha256: null
     parser:
-      type: null
+      type: edgelist
       directed: false
+      comments: "%"
+      delimiter: null
       nodetype: int
 
-  usa:
-    name: USA
-    domain: transportation
-    description: North American air transportation network
-    reference: Batagelj and Mrvar 2006
-    enabled: true
-    source:
-      url: null
-      filename: null
-      archive: null
-      extracted_filename: null
-      member: null
-      sha256: null
-    parser:
-      type: null
-      directed: false
-      nodetype: int
-
-  nsc:
-    name: NSC
+  ca_grqc:
+    name: ca-GrQc
     domain: scientific_collaboration
-    description: network science coauthorship network
-    reference: Newman 2006
+    role: original
+    repository: SNAP
+    description: General Relativity and Quantum Cosmology collaboration network
     enabled: true
     source:
-      url: null
-      filename: null
-      archive: null
-      extracted_filename: null
-      member: null
+      url: https://snap.stanford.edu/data/ca-GrQc.txt.gz
+      filename: ca-GrQc.txt.gz
+      archive: gzip
+      extracted_filename: ca-GrQc.txt
       sha256: null
     parser:
-      type: null
+      type: edgelist
       directed: false
+      comments: "#"
+      delimiter: null
+      nodetype: int
+
+  ca_hepth:
+    name: ca-HepTh
+    domain: scientific_collaboration
+    role: original
+    repository: SNAP
+    description: High Energy Physics Theory collaboration network
+    enabled: true
+    source:
+      url: https://snap.stanford.edu/data/ca-HepTh.txt.gz
+      filename: ca-HepTh.txt.gz
+      archive: gzip
+      extracted_filename: ca-HepTh.txt
+      sha256: null
+    parser:
+      type: edgelist
+      directed: false
+      comments: "#"
+      delimiter: null
+      nodetype: int
+
+  email_eu_core:
+    name: email-Eu-core
+    domain: communication
+    role: original
+    repository: SNAP
+    description: Email communication network from a European research institution
+    enabled: true
+    source:
+      url: https://snap.stanford.edu/data/email-Eu-core.txt.gz
+      filename: email-Eu-core.txt.gz
+      archive: gzip
+      extracted_filename: email-Eu-core.txt
+      sha256: null
+    parser:
+      type: edgelist
+      directed: true
+      comments: "#"
+      delimiter: null
+      nodetype: int
+
+  email_univ:
+    name: email-univ
+    domain: communication
+    role: additional
+    repository: Network Data Repository
+    description: University email communication network
+    enabled: true
+    source:
+      url: https://nrvis.com/download/data/email/email-univ.zip
+      filename: email-univ.zip
+      archive: zip
+      member_patterns:
+        - "*.edges"
+      sha256: null
+    parser:
+      type: edgelist
+      directed: false
+      comments: "%"
+      delimiter: null
+      nodetype: int
+
+  power_grid:
+    name: power-grid
+    domain: infrastructure
+    role: original
+    repository: Netzschleuder
+    description: Western United States power grid
+    enabled: true
+    source:
+      url: https://networks.skewed.de/net/power/files/power.csv.zip
+      filename: power.csv.zip
+      archive: zip
+      member_patterns:
+        - "*edge*.csv"
+        - "*edges*.csv"
+      sha256: null
+    parser:
+      type: csv
+      directed: false
+      separator: ","
+      source_column: null
+      target_column: null
+
+  power_1138_bus:
+    name: power-1138-bus
+    domain: infrastructure
+    role: additional
+    repository: Network Data Repository
+    description: Power network represented by a 1138-bus system
+    enabled: true
+    source:
+      url: https://nrvis.com/download/data/power/power-1138-bus.zip
+      filename: power-1138-bus.zip
+      archive: zip
+      member_patterns:
+        - "*.edges"
+      sha256: null
+    parser:
+      type: edgelist
+      directed: false
+      comments: "%"
+      delimiter: null
       nodetype: int

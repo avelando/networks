@@ -23,13 +23,22 @@ def graph_profile(
     raw_graph: nx.Graph,
     processed_graph: nx.Graph,
 ) -> dict[str, Any]:
+    raw_nodes = raw_graph.number_of_nodes()
+    raw_edges = raw_graph.number_of_edges()
+
     raw_undirected = nx.Graph(raw_graph)
     raw_undirected.remove_edges_from(
         nx.selfloop_edges(raw_undirected)
     )
 
-    raw_nodes = raw_undirected.number_of_nodes()
-    raw_edges = raw_undirected.number_of_edges()
+    raw_undirected_nodes = raw_undirected.number_of_nodes()
+    raw_undirected_edges = raw_undirected.number_of_edges()
+
+    raw_components = (
+        nx.number_connected_components(raw_undirected)
+        if raw_undirected_nodes > 0
+        else 0
+    )
 
     processed_nodes = processed_graph.number_of_nodes()
     processed_edges = processed_graph.number_of_edges()
@@ -43,21 +52,40 @@ def graph_profile(
     return {
         "network": network_name,
         "domain": domain,
+        "raw_graph_type": type(raw_graph).__name__,
+        "raw_directed": raw_graph.is_directed(),
         "raw_nodes": raw_nodes,
         "raw_edges": raw_edges,
+        "raw_undirected_nodes": raw_undirected_nodes,
+        "raw_undirected_edges": raw_undirected_edges,
+        "raw_components": raw_components,
         "processed_nodes": processed_nodes,
         "processed_edges": processed_edges,
-        "removed_nodes": raw_nodes - processed_nodes,
-        "removed_edges": raw_edges - processed_edges,
+        "removed_nodes": raw_undirected_nodes - processed_nodes,
+        "removed_edges": raw_undirected_edges - processed_edges,
+        "largest_component_node_ratio": (
+            processed_nodes / raw_undirected_nodes
+            if raw_undirected_nodes > 0
+            else np.nan
+        ),
+        "largest_component_edge_ratio": (
+            processed_edges / raw_undirected_edges
+            if raw_undirected_edges > 0
+            else np.nan
+        ),
         "density": nx.density(processed_graph),
         "average_degree": average_degree,
-        "average_clustering": nx.average_clustering(processed_graph),
+        "average_clustering": nx.average_clustering(
+            processed_graph
+        ),
         "transitivity": nx.transitivity(processed_graph),
         "degree_assortativity": safe_degree_assortativity(
             processed_graph
         ),
-        "connected_components": nx.number_connected_components(
-            processed_graph
+        "processed_components": (
+            nx.number_connected_components(processed_graph)
+            if processed_nodes > 0
+            else 0
         ),
     }
 

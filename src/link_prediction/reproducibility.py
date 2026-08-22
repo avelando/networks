@@ -8,7 +8,6 @@ from typing import Any
 
 from link_prediction.config import METADATA_RESULTS_DIR
 
-
 PACKAGES = [
     "networkx",
     "numpy",

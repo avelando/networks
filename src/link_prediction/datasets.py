@@ -95,6 +95,63 @@ def extract_zip(
     return destination
 
 
+def resolve_extracted_file(
+    directory: Path,
+    member: str | None = None,
+    member_patterns: list[str] | None = None,
+) -> Path:
+    if member is not None:
+        path = directory / member
+
+        if not path.exists():
+            raise FileNotFoundError(
+                f"Configured archive member not found: {path}"
+            )
+
+        return path
+
+    for pattern in member_patterns or []:
+        matches = sorted(
+            path
+            for path in directory.rglob(pattern)
+            if path.is_file()
+        )
+
+        if len(matches) == 1:
+            return matches[0]
+
+        if len(matches) > 1:
+            edge_candidates = [
+                path
+                for path in matches
+                if any(
+                    keyword in path.name.lower()
+                    for keyword in ("edge", "edges", "link", "links")
+                )
+            ]
+
+            if len(edge_candidates) == 1:
+                return edge_candidates[0]
+
+            raise ValueError(
+                f"Multiple files match pattern '{pattern}' "
+                f"in {directory}: {matches}"
+            )
+
+    files = sorted(
+        path
+        for path in directory.rglob("*")
+        if path.is_file()
+    )
+
+    if len(files) == 1:
+        return files[0]
+
+    raise FileNotFoundError(
+        f"Could not determine graph file in: {directory}"
+    )
+
+
 def prepare_dataset(
     network_name: str,
     network_config: dict[str, Any],
@@ -107,6 +164,7 @@ def prepare_dataset(
     archive_type = source.get("archive")
     extracted_filename = source.get("extracted_filename")
     member = source.get("member")
+    member_patterns = source.get("member_patterns", [])
     expected_sha256 = source.get("sha256")
 
     if not url:
@@ -150,17 +208,11 @@ def prepare_dataset(
             overwrite=overwrite,
         )
 
-        if member:
-            member_path = extraction_directory / member
-
-            if not member_path.exists():
-                raise FileNotFoundError(
-                    f"Configured archive member not found: {member_path}"
-                )
-
-            return member_path
-
-        return extraction_directory
+        return resolve_extracted_file(
+            directory=extraction_directory,
+            member=member,
+            member_patterns=member_patterns,
+        )
 
     raise ValueError(
         f"Unsupported archive type for {network_name}: {archive_type}"
