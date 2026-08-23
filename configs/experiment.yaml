@@ -42,3 +42,15 @@ graph:
 connectivity:
   preserve_spanning_tree: true
   spanning_tree_strategy: seeded_randomized_kruskal
+
+execution:
+  max_workers: auto
+  reserve_memory_gib: 2.0
+  hard_cap: 16
+
+  memory_per_worker_gib:
+    profiling: 2.0
+    fold_building: 3.0
+    method_benchmark: 3.0
+    sensitivity: 5.0
+    robustness: 6.0

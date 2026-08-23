@@ -293,6 +293,7 @@ def summarize_parameter_sensitivity(
 
 def run_parameter_sensitivity(
     benchmark_name: str = "revision",
+    max_workers: int | str | None = "auto",
 ) -> tuple[
     pd.DataFrame,
     pd.DataFrame,

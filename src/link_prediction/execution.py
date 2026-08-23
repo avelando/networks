@@ -1,7 +1,19 @@
 import os
-from pathlib import Path
+from concurrent.futures import (
+    ProcessPoolExecutor,
+    as_completed,
+)
+from collections.abc import (
+    Callable,
+    Sequence,
+)
+from typing import Any
 
 import psutil
+
+from link_prediction.config import (
+    load_experiment_config,
+)
 
 
 GIB = 1024**3
@@ -31,8 +43,9 @@ def available_logical_cpus() -> int:
         )
 
         if affinity:
-            return len(
-                affinity
+            return max(
+                1,
+                len(affinity),
             )
 
     except (
@@ -52,108 +65,48 @@ def available_logical_cpus() -> int:
     )
 
 
-def cgroup_available_memory_bytes() -> int | None:
-    memory_max = Path(
-        "/sys/fs/cgroup/memory.max"
+def available_physical_cpus() -> int:
+    logical = (
+        available_logical_cpus()
     )
 
-    memory_current = Path(
-        "/sys/fs/cgroup/memory.current"
-    )
-
-    if (
-        memory_max.exists()
-        and memory_current.exists()
-    ):
-        maximum_text = (
-            memory_max
-            .read_text(
-                encoding="utf-8"
-            )
-            .strip()
+    physical = (
+        psutil.cpu_count(
+            logical=False
         )
-
-        if maximum_text != "max":
-            maximum = int(
-                maximum_text
-            )
-
-            current = int(
-                memory_current
-                .read_text(
-                    encoding="utf-8"
-                )
-                .strip()
-            )
-
-            return max(
-                0,
-                maximum - current,
-            )
-
-    memory_limit = Path(
-        "/sys/fs/cgroup/memory/"
-        "memory.limit_in_bytes"
     )
 
-    memory_usage = Path(
-        "/sys/fs/cgroup/memory/"
-        "memory.usage_in_bytes"
-    )
-
-    if (
-        memory_limit.exists()
-        and memory_usage.exists()
-    ):
-        maximum = int(
-            memory_limit
-            .read_text(
-                encoding="utf-8"
-            )
-            .strip()
-        )
-
-        current = int(
-            memory_usage
-            .read_text(
-                encoding="utf-8"
-            )
-            .strip()
-        )
-
+    if physical is None:
         return max(
-            0,
-            maximum - current,
+            1,
+            logical // 2,
         )
 
-    return None
+    return max(
+        1,
+        min(
+            logical,
+            physical,
+        ),
+    )
 
 
 def available_memory_bytes() -> int:
-    system_available = int(
+    return int(
         psutil.virtual_memory()
         .available
-    )
-
-    cgroup_available = (
-        cgroup_available_memory_bytes()
-    )
-
-    if cgroup_available is None:
-        return system_available
-
-    return min(
-        system_available,
-        cgroup_available,
     )
 
 
 def choose_process_count(
     logical_cpus: int,
     memory_bytes: int | None,
+    *,
+    physical_cpus: int | None = None,
     memory_per_worker_gib: float = 4.0,
-    reserve_memory_gib: float = 1.0,
-    hard_cap: int = 8,
+    reserve_memory_gib: float = 2.0,
+    hard_cap: int = 16,
+    task_count: int | None = None,
 ) -> int:
     if logical_cpus < 1:
         raise ValueError(
@@ -175,15 +128,24 @@ def choose_process_count(
             "hard_cap must be at least 1."
         )
 
-    cpu_limit = max(
-        1,
-        logical_cpus // 2,
-    )
+    if physical_cpus is None:
+        cpu_limit = max(
+            1,
+            logical_cpus // 2,
+        )
+    else:
+        cpu_limit = max(
+            1,
+            min(
+                logical_cpus,
+                physical_cpus,
+            ),
+        )
 
     memory_limit = hard_cap
 
     if memory_bytes is not None:
-        reserved_memory = int(
+        reserve_bytes = int(
             reserve_memory_gib
             * GIB
         )
@@ -191,10 +153,10 @@ def choose_process_count(
         usable_memory = max(
             0,
             memory_bytes
-            - reserved_memory,
+            - reserve_bytes,
         )
 
-        memory_per_worker = int(
+        worker_bytes = int(
             memory_per_worker_gib
             * GIB
         )
@@ -202,10 +164,10 @@ def choose_process_count(
         memory_limit = max(
             1,
             usable_memory
-            // memory_per_worker,
+            // worker_bytes,
         )
 
-    return max(
+    worker_count = max(
         1,
         min(
             cpu_limit,
@@ -214,38 +176,60 @@ def choose_process_count(
         ),
     )
 
+    if task_count is not None:
+        worker_count = min(
+            worker_count,
+            max(
+                1,
+                task_count,
+            ),
+        )
+
+    return worker_count
+
 
 def resolve_process_count(
     max_workers: int | str | None = "auto",
+    *,
+    profile: str = "method_benchmark",
+    task_count: int | None = None,
 ) -> int:
-    if (
-        max_workers is None
-        or max_workers == "auto"
-    ):
-        environment_override = (
-            os.getenv(
-                "LINK_PREDICTION_MAX_WORKERS"
-            )
+    config = (
+        load_experiment_config()
+        .get(
+            "execution",
+            {},
+        )
+    )
+
+    configured_workers = (
+        config.get(
+            "max_workers",
+            "auto",
+        )
+    )
+
+    if max_workers is None:
+        max_workers = (
+            configured_workers
         )
 
-        if environment_override:
-            try:
-                max_workers = int(
-                    environment_override
-                )
-            except ValueError as error:
-                raise ValueError(
-                    "LINK_PREDICTION_MAX_WORKERS "
-                    "must be an integer."
-                ) from error
+    environment_override = (
+        os.getenv(
+            "LINK_PREDICTION_MAX_WORKERS"
+        )
+    )
 
-        else:
-            return choose_process_count(
-                logical_cpus=
-                    available_logical_cpus(),
-                memory_bytes=
-                    available_memory_bytes(),
+    if environment_override:
+        try:
+            max_workers = int(
+                environment_override
             )
+        except ValueError as error:
+            raise ValueError(
+                "LINK_PREDICTION_MAX_WORKERS "
+                "must be an integer."
+            ) from error
 
     if isinstance(
         max_workers,
@@ -256,8 +240,131 @@ def resolve_process_count(
                 "max_workers must be at least 1."
             )
 
-        return max_workers
+        if task_count is None:
+            return max_workers
 
-    raise ValueError(
-        "max_workers must be an integer or 'auto'."
+        return min(
+            max_workers,
+            max(
+                1,
+                task_count,
+            ),
+        )
+
+    if max_workers != "auto":
+        raise ValueError(
+            "max_workers must be "
+            "an integer, None, or 'auto'."
+        )
+
+    memory_profiles = (
+        config.get(
+            "memory_per_worker_gib",
+            {},
+        )
     )
+
+    memory_per_worker = float(
+        memory_profiles.get(
+            profile,
+            4.0,
+        )
+    )
+
+    return choose_process_count(
+        logical_cpus=
+            available_logical_cpus(),
+        physical_cpus=
+            available_physical_cpus(),
+        memory_bytes=
+            available_memory_bytes(),
+        memory_per_worker_gib=
+            memory_per_worker,
+        reserve_memory_gib=float(
+            config.get(
+                "reserve_memory_gib",
+                2.0,
+            )
+        ),
+        hard_cap=int(
+            config.get(
+                "hard_cap",
+                16,
+            )
+        ),
+        task_count=
+            task_count,
+    )
+
+
+def run_process_tasks(
+    worker: Callable[..., Any],
+    tasks: Sequence[tuple[Any, ...]],
+    *,
+    max_workers: int | str | None = "auto",
+    profile: str = "method_benchmark",
+    label: str = "tasks",
+) -> list[Any]:
+    if not tasks:
+        return []
+
+    worker_count = (
+        resolve_process_count(
+            max_workers,
+            profile=profile,
+            task_count=len(tasks),
+        )
+    )
+
+    print(
+        f"{label}: "
+        f"{len(tasks)} tasks, "
+        f"{worker_count} workers"
+    )
+
+    if worker_count == 1:
+        return [
+            worker(
+                *task
+            )
+            for task
+            in tasks
+        ]
+
+    results: list[
+        Any | None
+    ] = [
+        None
+    ] * len(
+        tasks
+    )
+
+    with ProcessPoolExecutor(
+        max_workers=
+            worker_count
+    ) as executor:
+        futures = {
+            executor.submit(
+                worker,
+                *task,
+            ): index
+            for index, task
+            in enumerate(
+                tasks
+            )
+        }
+
+        for future in (
+            as_completed(
+                futures
+            )
+        ):
+            index = futures[
+                future
+            ]
+
+            results[
+                index
+            ] = future.result()
+
+    return results

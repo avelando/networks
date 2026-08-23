@@ -19,6 +19,13 @@ from link_prediction.config import (
 from link_prediction.metrics import (
     evaluate_ranking,
 )
+from threadpoolctl import (
+    threadpool_limits,
+)
+
+from link_prediction.execution import (
+    run_process_tasks,
+)
 
 Scorer = Callable[
     [
@@ -284,10 +291,190 @@ def summarize_fold_metrics(
     return summary
 
 
+def evaluate_method_family_fold(
+    benchmark_name: str,
+    family_id: str,
+    network_id: str,
+    fold_number: int,
+    scorer: Scorer,
+) -> pd.DataFrame:
+    networks_config = (
+        load_networks_config()
+    )
+
+    methods_config = (
+        load_methods_config()
+    )
+
+    network_config = (
+        networks_config[
+            "networks"
+        ][
+            network_id
+        ]
+    )
+
+    method_ids = [
+        method_id
+        for (
+            method_id,
+            method_config,
+        ) in methods_config[
+            "methods"
+        ].items()
+        if (
+            method_config[
+                "family"
+            ]
+            == family_id
+            and method_config.get(
+                "enabled",
+                True,
+            )
+        )
+    ]
+
+    (
+        graph,
+        candidates,
+    ) = load_fold_data(
+        benchmark_name=
+            benchmark_name,
+        network_id=
+            network_id,
+        fold_number=
+            fold_number,
+    )
+
+    start = perf_counter()
+
+    with threadpool_limits(
+        limits=1
+    ):
+        scores = scorer(
+            graph,
+            candidates,
+        )
+
+    family_scoring_seconds = (
+        perf_counter()
+        - start
+    )
+
+    metrics = evaluate_score_table(
+        candidates=
+            candidates,
+        scores=
+            scores,
+        method_ids=
+            method_ids,
+    )
+
+    metrics.insert(
+        0,
+        "fold",
+        fold_number,
+    )
+
+    metrics.insert(
+        0,
+        "domain",
+        network_config[
+            "domain"
+        ],
+    )
+
+    metrics.insert(
+        0,
+        "network",
+        network_config[
+            "name"
+        ],
+    )
+
+    metrics.insert(
+        0,
+        "network_id",
+        network_id,
+    )
+
+    metrics.insert(
+        0,
+        "benchmark",
+        benchmark_name,
+    )
+
+    metrics.insert(
+        5,
+        "family",
+        family_id,
+    )
+
+    metrics["method"] = (
+        metrics[
+            "method_id"
+        ].map(
+            {
+                method_id:
+                    methods_config[
+                        "methods"
+                    ][
+                        method_id
+                    ][
+                        "name"
+                    ]
+                for method_id
+                in method_ids
+            }
+        )
+    )
+
+    metrics[
+        "family_scoring_seconds"
+    ] = family_scoring_seconds
+
+    evaluation_directory = (
+        RESULTS_DIR
+        / "evaluations"
+        / benchmark_name
+        / family_id
+        / network_id
+    )
+
+    evaluation_directory.mkdir(
+        parents=True,
+        exist_ok=True,
+    )
+
+    scored_candidates = (
+        candidates.copy()
+    )
+
+    for method_id in method_ids:
+        scored_candidates[
+            method_id
+        ] = scores[
+            method_id
+        ].to_numpy()
+
+    scored_candidates.to_csv(
+        evaluation_directory
+        / (
+            f"fold_"
+            f"{fold_number:02d}"
+            "_scores.csv"
+        ),
+        index=False,
+    )
+
+    return metrics
+
+
 def run_method_family_benchmark(
     family_id: str,
     scorer: Scorer,
     benchmark_name: str = "revision",
+    max_workers: int | str | None = "auto",
 ) -> tuple[
     pd.DataFrame,
     pd.DataFrame,
@@ -366,6 +553,8 @@ def run_method_family_benchmark(
 
     rows = []
 
+    tasks = []
+
     for network_id in benchmark:
         network_config = (
             network_definitions[
@@ -383,140 +572,24 @@ def run_method_family_benchmark(
             1,
             n_folds + 1,
         ):
-            (
-                graph,
-                candidates,
-            ) = load_fold_data(
-                benchmark_name=
+            tasks.append(
+                (
                     benchmark_name,
-                network_id=
+                    family_id,
                     network_id,
-                fold_number=
                     fold_number,
-            )
-
-            start = perf_counter()
-
-            scores = scorer(
-                graph,
-                candidates,
-            )
-
-            family_scoring_seconds = (
-                perf_counter()
-                - start
-            )
-
-            metrics = (
-                evaluate_score_table(
-                    candidates=
-                        candidates,
-                    scores=
-                        scores,
-                    method_ids=
-                        method_ids,
+                    scorer,
                 )
             )
 
-            metrics.insert(
-                0,
-                "fold",
-                fold_number,
-            )
 
-            metrics.insert(
-                0,
-                "domain",
-                network_config[
-                    "domain"
-                ],
-            )
-
-            metrics.insert(
-                0,
-                "network",
-                network_config[
-                    "name"
-                ],
-            )
-
-            metrics.insert(
-                0,
-                "network_id",
-                network_id,
-            )
-
-            metrics.insert(
-                0,
-                "benchmark",
-                benchmark_name,
-            )
-
-            metrics.insert(
-                5,
-                "family",
-                family_id,
-            )
-
-            metrics[
-                "method"
-            ] = metrics[
-                "method_id"
-            ].map(
-                {
-                    method_id:
-                        methods_config[
-                            "methods"
-                        ][
-                            method_id
-                        ][
-                            "name"
-                        ]
-                    for method_id
-                    in method_ids
-                }
-            )
-
-            metrics[
-                "family_scoring_seconds"
-            ] = (
-                family_scoring_seconds
-            )
-
-            rows.append(
-                metrics
-            )
-
-            scored_candidates = (
-                candidates.copy()
-            )
-
-            for method_id in method_ids:
-                scored_candidates[
-                    method_id
-                ] = scores[
-                    method_id
-                ].to_numpy()
-
-            network_directory = (
-                evaluation_directory
-                / network_id
-            )
-
-            network_directory.mkdir(
-                parents=True,
-                exist_ok=True,
-            )
-
-            scored_candidates.to_csv(
-                network_directory
-                / (
-                    f"fold_"
-                    f"{fold_number:02d}"
-                    "_scores.csv"
-                ),
-                index=False,
-            )
+    rows = run_process_tasks(
+        evaluate_method_family_fold,
+        tasks,
+        max_workers=max_workers,
+        profile="method_benchmark",
+        label=family_id,
+    )
 
     fold_metrics = pd.concat(
         rows,

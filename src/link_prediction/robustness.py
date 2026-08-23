@@ -918,16 +918,31 @@ def evaluate_robustness_fold(
         ]
     )
 
-    maximum_scores = (
-        score_all_primary_methods(
-            graph=
-                training_graph,
-            candidates=
-                maximum_candidates,
-            methods_config=
-                methods_config,
+    if native_threads is None:
+        maximum_scores = (
+            score_all_primary_methods(
+                graph=
+                    training_graph,
+                candidates=
+                    maximum_candidates,
+                methods_config=
+                    methods_config,
+            )
         )
-    )
+    else:
+        with threadpool_limits(
+            limits=native_threads
+        ):
+            maximum_scores = (
+                score_all_primary_methods(
+                    graph=
+                        training_graph,
+                candidates=
+                    maximum_candidates,
+                methods_config=
+                    methods_config,
+            )
+        )
 
     frames = []
 
@@ -1336,8 +1351,12 @@ def run_negative_sampling_robustness(
     if pending_tasks:
         worker_count = min(
             resolve_process_count(
-                max_workers
-            ),
+                max_workers,
+                profile="robustness",
+                task_count=len(
+                    pending_tasks
+                ),
+            )
             len(
                 pending_tasks
             ),
