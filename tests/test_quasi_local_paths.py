@@ -162,6 +162,53 @@ def test_lpi_matches_adjacency_matrix_definition():
     )
 
 
+def test_ora_cni_matches_third_order_definition():
+    graph = nx.Graph()
+
+    graph.add_edges_from(
+        [
+            ("x", "a"),
+            ("x", "b"),
+            ("y", "a"),
+            ("y", "b"),
+            ("a", "b"),
+        ]
+    )
+
+    candidates = pd.DataFrame(
+        {
+            "source": ["x"],
+            "target": ["y"],
+        }
+    )
+
+    beta = 0.1
+
+    scores = (
+        score_quasi_local_path_candidates(
+            graph=graph,
+            candidates=candidates,
+            ora_beta=beta,
+        )
+    )
+
+    expected = (
+        2.0 / 3.0
+        + beta
+        * (
+            1.0 / 9.0
+            + 1.0 / 9.0
+        )
+    )
+
+    assert scores.loc[
+        0,
+        "ora_cni",
+    ] == pytest.approx(
+        expected
+    )
+
+
 def test_friendlink_matches_length_three_formula():
     graph = nx.Graph()
 

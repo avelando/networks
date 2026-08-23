@@ -164,6 +164,13 @@ methods:
         - 0.01
         - 0.001
 
+  ora_cni:
+    name: ORA-CNI-beta-0.001
+    family: quasi_local_path
+    enabled: true
+    parameters:
+      beta: 0.001
+
   fl:
     name: FL-l3
     family: quasi_local_path

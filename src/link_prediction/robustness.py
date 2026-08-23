@@ -514,6 +514,14 @@ def score_all_primary_methods(
         ]
     )
 
+    ora_cni_parameters = (
+        methods[
+            "ora_cni"
+        ][
+            "parameters"
+        ]
+    )
+
     friendlink_parameters = (
         methods[
             "fl"
@@ -585,6 +593,11 @@ def score_all_primary_methods(
                 length=int(
                     lpi_parameters[
                         "length"
+                    ]
+                ),
+                ora_beta=float(
+                    ora_cni_parameters[
+                        "beta"
                     ]
                 ),
                 friendlink_length=int(

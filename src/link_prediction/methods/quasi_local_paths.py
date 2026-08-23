@@ -2,8 +2,13 @@ import networkx as nx
 import numpy as np
 import pandas as pd
 
+from link_prediction.methods.enhanced_local import (
+    ra_cni_interaction_score,
+)
+
 QUASI_LOCAL_PATH_METHODS = (
     "lpi",
+    "ora_cni",
     "fl",
 )
 
@@ -13,6 +18,7 @@ def score_quasi_local_path_candidates(
     candidates: pd.DataFrame,
     beta: float = 0.001,
     length: int = 3,
+    ora_beta: float = 0.001,
     friendlink_length: int = 3,
 ) -> pd.DataFrame:
     if graph.is_directed():
@@ -34,7 +40,12 @@ def score_quasi_local_path_candidates(
 
     if beta < 0:
         raise ValueError(
-            "beta must be non-negative."
+            "LPI beta must be non-negative."
+        )
+
+    if ora_beta < 0:
+        raise ValueError(
+            "ORA-CNI beta must be non-negative."
         )
 
     required_columns = {
@@ -92,6 +103,20 @@ def score_quasi_local_path_candidates(
             "absent from the training graph."
         )
 
+    neighbors = {
+        node: set(
+            graph.neighbors(node)
+        )
+        for node
+        in graph.nodes()
+    }
+
+    degrees = {
+        node: len(node_neighbors)
+        for node, node_neighbors
+        in neighbors.items()
+    }
+
     adjacency = nx.to_scipy_sparse_array(
         graph,
         nodelist=nodes,
@@ -143,6 +168,74 @@ def score_quasi_local_path_candidates(
         dtype=np.float64,
     ).ravel()
 
+    ora_cni_scores = []
+
+    for source, target in candidates[
+        [
+            "source",
+            "target",
+        ]
+    ].itertuples(
+        index=False,
+        name=None,
+    ):
+        source_neighbors = (
+            neighbors[source]
+        )
+
+        target_neighbors = (
+            neighbors[target]
+        )
+
+        common_neighbors = (
+            source_neighbors
+            & target_neighbors
+        )
+
+        resource_allocation = sum(
+            1.0 / degrees[node]
+            for node
+            in common_neighbors
+        )
+
+        interaction = (
+            ra_cni_interaction_score(
+                source_neighbors=
+                    source_neighbors,
+                target_neighbors=
+                    target_neighbors,
+                neighbors=neighbors,
+                degrees=degrees,
+            )
+        )
+
+        third_order_allocation = sum(
+            1.0
+            / (
+                degrees[source_neighbor]
+                * degrees[target_neighbor]
+            )
+            for source_neighbor
+            in source_neighbors
+            for target_neighbor
+            in (
+                neighbors[source_neighbor]
+                & target_neighbors
+            )
+            if source_neighbor
+            != target_neighbor
+        )
+
+        ora_cni_scores.append(
+            float(
+                resource_allocation
+                + interaction
+                + ora_beta
+                * third_order_allocation
+            )
+        )
+
+
     number_of_nodes = float(
         len(nodes)
     )
@@ -174,6 +267,8 @@ def score_quasi_local_path_candidates(
                 + beta
                 * length_three_scores
             ),
+            "ora_cni":
+                ora_cni_scores,
             "fl":
                 friendlink_scores,
         },
