@@ -514,6 +514,14 @@ def score_all_primary_methods(
         ]
     )
 
+    friendlink_parameters = (
+        methods[
+            "fl"
+        ][
+            "parameters"
+        ]
+    )
+
     walk_steps = {
         int(
             methods[
@@ -576,6 +584,11 @@ def score_all_primary_methods(
                 ),
                 length=int(
                     lpi_parameters[
+                        "length"
+                    ]
+                ),
+                friendlink_length=int(
+                    friendlink_parameters[
                         "length"
                     ]
                 ),

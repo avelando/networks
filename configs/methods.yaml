@@ -140,6 +140,13 @@ methods:
         - 0.01
         - 0.001
 
+  fl:
+    name: FL-l3
+    family: quasi_local_path
+    enabled: true
+    parameters:
+      length: 3
+
   lrw:
     name: LRW-l3
     family: quasi_local_walk

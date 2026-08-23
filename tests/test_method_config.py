@@ -8,21 +8,14 @@ def test_method_registry():
     methods = config["methods"]
 
     assert len(families) == 6
-    assert len(methods) == 21
+    assert len(methods) == 22
 
-    assert methods["lit"] == {
-        "name": "LIT-i2",
-        "family": "enhanced_local",
+    assert methods["fl"] == {
+        "name": "FL-l3",
+        "family": "quasi_local_path",
         "enabled": True,
         "parameters": {
-            "iterations": 2,
-        },
-        "sensitivity": {
-            "iterations": [
-                2,
-                4,
-                6,
-            ],
+            "length": 3,
         },
     }
 

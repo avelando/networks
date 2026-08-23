@@ -2,7 +2,10 @@ import networkx as nx
 import numpy as np
 import pandas as pd
 
-QUASI_LOCAL_PATH_METHODS = ("lpi",)
+QUASI_LOCAL_PATH_METHODS = (
+    "lpi",
+    "fl",
+)
 
 
 def score_quasi_local_path_candidates(
@@ -10,15 +13,23 @@ def score_quasi_local_path_candidates(
     candidates: pd.DataFrame,
     beta: float = 0.001,
     length: int = 3,
+    friendlink_length: int = 3,
 ) -> pd.DataFrame:
     if graph.is_directed():
         raise ValueError(
-            "LPI requires an undirected graph."
+            "Quasi-local path methods require "
+            "an undirected graph."
         )
 
     if length != 3:
         raise ValueError(
             "This LPI implementation requires length=3."
+        )
+
+    if friendlink_length != 3:
+        raise ValueError(
+            "This FriendLink implementation "
+            "requires length=3."
         )
 
     if beta < 0:
@@ -45,6 +56,15 @@ def score_quasi_local_path_candidates(
     nodes = list(
         graph.nodes()
     )
+
+    if (
+        len(nodes)
+        <= friendlink_length
+    ):
+        raise ValueError(
+            "FriendLink requires more graph "
+            "nodes than its maximum length."
+        )
 
     node_to_index = {
         node: index
@@ -123,12 +143,40 @@ def score_quasi_local_path_candidates(
         dtype=np.float64,
     ).ravel()
 
+    number_of_nodes = float(
+        len(nodes)
+    )
+
+    friendlink_scores = (
+        length_two_scores
+        / (
+            number_of_nodes
+            - 2.0
+        )
+        + length_three_scores
+        / (
+            2.0
+            * (
+                number_of_nodes
+                - 2.0
+            )
+            * (
+                number_of_nodes
+                - 3.0
+            )
+        )
+    )
+
     return pd.DataFrame(
         {
             "lpi": (
                 length_two_scores
                 + beta
                 * length_three_scores
-            )
-        }
+            ),
+            "fl":
+                friendlink_scores,
+        },
+        columns=
+            QUASI_LOCAL_PATH_METHODS,
     )
