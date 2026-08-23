@@ -211,9 +211,9 @@ def load_benchmark_fold_metrics(
             "method-network-fold rows."
         )
 
-    reference_method = sorted(
+    reference_method = min(
         expected_method_ids
-    )[0]
+    )
 
     reference_blocks = set(
         fold_metrics[
