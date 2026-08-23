@@ -77,6 +77,7 @@ def test_experiment_configuration():
         "confirmatory_methods"
     ] == [
         "srw",
+        "fl",
         "lpi",
         "pfp",
     ]
