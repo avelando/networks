@@ -189,6 +189,64 @@ def functional_similarity_weight(
     )
 
 
+def local_interacting_pair_score(
+    source: object,
+    target: object,
+    neighbors: dict[
+        object,
+        set[object],
+    ],
+    edge_weights: dict[
+        tuple[object, object],
+        float,
+    ],
+    strengths: dict[
+        object,
+        float,
+    ],
+    penalties: dict[
+        object,
+        float,
+    ],
+) -> float:
+    common_neighbors = (
+        neighbors[source]
+        & neighbors[target]
+    )
+
+    numerator = sum(
+        edge_weights[
+            canonical_edge(
+                common_neighbor,
+                source,
+            )
+        ]
+        + edge_weights[
+            canonical_edge(
+                common_neighbor,
+                target,
+            )
+        ]
+        for common_neighbor
+        in common_neighbors
+    )
+
+    denominator = (
+        strengths[source]
+        + strengths[target]
+        + penalties[source]
+        + penalties[target]
+    )
+
+    if denominator == 0.0:
+        return 0.0
+
+    return float(
+        numerator
+        / denominator
+    )
+
+
 def local_interacting_scores(
     graph: nx.Graph,
     candidates: pd.DataFrame,
@@ -278,51 +336,14 @@ def local_interacting_scores(
             in strengths.items()
         }
 
-        def pair_score(
-            source: object,
-            target: object,
-        ) -> float:
-            common_neighbors = (
-                neighbors[source]
-                & neighbors[target]
-            )
-
-            numerator = sum(
-                edge_weights[
-                    canonical_edge(
-                        common_neighbor,
-                        source,
-                    )
-                ]
-                + edge_weights[
-                    canonical_edge(
-                        common_neighbor,
-                        target,
-                    )
-                ]
-                for common_neighbor
-                in common_neighbors
-            )
-
-            denominator = (
-                strengths[source]
-                + strengths[target]
-                + penalties[source]
-                + penalties[target]
-            )
-
-            if denominator == 0.0:
-                return 0.0
-
-            return float(
-                numerator
-                / denominator
-            )
-
         candidate_scores = [
-            pair_score(
-                source,
-                target,
+            local_interacting_pair_score(
+                source=source,
+                target=target,
+                neighbors=neighbors,
+                edge_weights=edge_weights,
+                strengths=strengths,
+                penalties=penalties,
             )
             for source, target
             in candidate_pairs
@@ -332,9 +353,13 @@ def local_interacting_scores(
             canonical_edge(
                 source,
                 target,
-            ): pair_score(
-                source,
-                target,
+            ): local_interacting_pair_score(
+                source=source,
+                target=target,
+                neighbors=neighbors,
+                edge_weights=edge_weights,
+                strengths=strengths,
+                penalties=penalties,
             )
             for source, target
             in graph.edges()
