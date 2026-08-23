@@ -111,7 +111,7 @@ def score_local_bayesian_candidates(
 
     if prior_odds <= 0.0:
         raise ValueError(
-            "LNB-RA requires a "
+            "Local Bayesian methods require a "
             "non-complete training graph."
         )
 
