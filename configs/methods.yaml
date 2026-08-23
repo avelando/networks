@@ -115,6 +115,18 @@ methods:
     enabled: true
     parameters: {}
 
+  lit:
+    name: LIT-i2
+    family: enhanced_local
+    enabled: true
+    parameters:
+      iterations: 2
+    sensitivity:
+      iterations:
+        - 2
+        - 4
+        - 6
+
   lpi:
     name: LPI-beta-0.001
     family: quasi_local_path

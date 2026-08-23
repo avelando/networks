@@ -8,13 +8,22 @@ def test_method_registry():
     methods = config["methods"]
 
     assert len(families) == 6
-    assert len(methods) == 20
+    assert len(methods) == 21
 
-    assert methods["ia1"] == {
-        "name": "IA1",
+    assert methods["lit"] == {
+        "name": "LIT-i2",
         "family": "enhanced_local",
         "enabled": True,
-        "parameters": {},
+        "parameters": {
+            "iterations": 2,
+        },
+        "sensitivity": {
+            "iterations": [
+                2,
+                4,
+                6,
+            ],
+        },
     }
 
     for method in methods.values():

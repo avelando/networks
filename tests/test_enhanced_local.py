@@ -141,6 +141,89 @@ def test_ia1_uses_per_common_neighbor_internal_links():
     )
 
 
+def test_lit_matches_iterative_definition():
+    graph = nx.Graph()
+
+    graph.add_edges_from(
+        [
+            ("x", "a"),
+            ("x", "b"),
+            ("y", "a"),
+            ("y", "b"),
+            ("a", "b"),
+        ]
+    )
+
+    candidates = pd.DataFrame(
+        {
+            "source": ["x"],
+            "target": ["y"],
+        }
+    )
+
+    first_iteration = (
+        score_enhanced_local_candidates(
+            graph=graph,
+            candidates=candidates,
+            lit_iterations=1,
+        )
+        .iloc[0]
+    )
+
+    second_iteration = (
+        score_enhanced_local_candidates(
+            graph=graph,
+            candidates=candidates,
+            lit_iterations=2,
+        )
+        .iloc[0]
+    )
+
+    assert first_iteration[
+        "lit"
+    ] == pytest.approx(
+        4.0 / 5.0
+    )
+
+    assert second_iteration[
+        "lit"
+    ] == pytest.approx(
+        24.0 / 35.0
+    )
+
+
+@pytest.mark.parametrize(
+    "iterations",
+    [
+        0,
+        -1,
+        1.5,
+        True,
+    ],
+)
+def test_lit_rejects_invalid_iterations(
+    iterations,
+):
+    graph = build_enhanced_test_graph()
+
+    candidates = pd.DataFrame(
+        {
+            "source": ["x"],
+            "target": ["y"],
+        }
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="positive integer",
+    ):
+        score_enhanced_local_candidates(
+            graph=graph,
+            candidates=candidates,
+            lit_iterations=iterations,
+        )
+
+
 def test_enhanced_local_scores_are_symmetric():
     graph = build_enhanced_test_graph()
 
@@ -240,6 +323,7 @@ def test_enhanced_local_zero_common_neighbors():
     assert scores["ia2"] == 0.0
     assert scores["car_ra"] == 0.0
     assert scores["fsw"] == 0.0
+    assert scores["lit"] == 0.0
 
 
 def test_enhanced_local_rejects_missing_node():
