@@ -159,6 +159,83 @@ def resolve_analysis_family_map(
     return mapping
 
 
+def resolve_method_complexity_map(
+    methods_config: dict[str, Any],
+) -> dict[str, str]:
+    methods = methods_config[
+        "methods"
+    ]
+
+    complexity_classes = (
+        methods_config[
+            "complexity_classes"
+        ]
+    )
+
+    mapping = {}
+
+    for (
+        complexity_id,
+        complexity_config,
+    ) in complexity_classes.items():
+        method_ids = list(
+            complexity_config.get(
+                "methods",
+                [],
+            )
+        )
+
+        if not method_ids:
+            raise ValueError(
+                "Complexity class has no "
+                "methods: "
+                f"{complexity_id}"
+            )
+
+        for method_id in method_ids:
+            if method_id not in methods:
+                raise ValueError(
+                    "Complexity class references "
+                    "an unknown method: "
+                    f"{method_id}"
+                )
+
+            if method_id in mapping:
+                raise ValueError(
+                    "Method belongs to multiple "
+                    "complexity classes: "
+                    f"{method_id}"
+                )
+
+            mapping[
+                method_id
+            ] = complexity_id
+
+    enabled_method_ids = {
+        method_id
+        for method_id, method_config
+        in methods.items()
+        if method_config.get(
+            "enabled",
+            True,
+        )
+    }
+
+    missing_method_ids = (
+        enabled_method_ids
+        - set(mapping)
+    )
+
+    if missing_method_ids:
+        raise ValueError(
+            "Enabled methods are missing "
+            "complexity classes: "
+            f"{sorted(missing_method_ids)}"
+        )
+
+    return mapping
+
+
 def ensure_project_directories() -> None:
     directories = [
         RAW_DATA_DIR,

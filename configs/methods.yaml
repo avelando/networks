@@ -46,6 +46,70 @@ analysis_families:
       - quasi_local_walk
 
 
+complexity_classes:
+  degree_pair:
+    expression: "O(v k^2)"
+    latex: "$O(vk^2)$"
+    methods:
+      - pa
+
+  local_neighborhood:
+    expression: "O(v k^3)"
+    latex: "$O(vk^3)$"
+    methods:
+      - cn
+      - aa
+      - ra
+      - ja
+      - sa
+      - so
+      - hpi
+      - hdi
+      - llhn
+      - lnb_cn
+      - lnb_aa
+      - lnb_ra
+      - ia2
+      - fsw
+
+  extended_local:
+    expression: "O(v k^4)"
+    latex: "$O(vk^4)$"
+    methods:
+      - ra_cni
+      - ia1
+      - car_cn
+      - car_aa
+      - car_ra
+
+  iterative_local:
+    expression: "O(l v k^3)"
+    latex: "$O(lvk^3)$"
+    methods:
+      - lit
+
+  short_path_walk:
+    expression: "O(l v^2 k)"
+    latex: "$O(lv^2k)$"
+    methods:
+      - lpi
+      - fl
+      - lrw
+      - srw
+
+  third_order_path:
+    expression: "O(v k^6)"
+    latex: "$O(vk^6)$"
+    methods:
+      - ora_cni
+
+  propflow:
+    expression: "O(v l k^l)"
+    latex: "$O(vlk^l)$"
+    methods:
+      - pfp
+
+
 methods:
   cn:
     name: CN

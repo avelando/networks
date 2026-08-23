@@ -1,6 +1,7 @@
 from link_prediction.config import (
     load_methods_config,
     resolve_analysis_family_map,
+    resolve_method_complexity_map,
 )
 
 
@@ -105,3 +106,47 @@ def test_quasi_local_primary_parameters():
     assert methods["lrw"]["parameters"]["steps"] == 3
     assert methods["srw"]["parameters"]["steps"] == 3
     assert methods["pfp"]["parameters"]["steps"] == 3
+
+
+def test_method_complexity_registry():
+    config = load_methods_config()
+
+    mapping = (
+        resolve_method_complexity_map(
+            config
+        )
+    )
+
+    enabled_method_ids = {
+        method_id
+        for method_id, method
+        in config[
+            "methods"
+        ].items()
+        if method.get(
+            "enabled",
+            True,
+        )
+    }
+
+    assert set(mapping) == (
+        enabled_method_ids
+    )
+
+    assert len(mapping) == 27
+
+    assert mapping["pa"] == (
+        "degree_pair"
+    )
+
+    assert mapping["cn"] == (
+        "local_neighborhood"
+    )
+
+    assert mapping["ora_cni"] == (
+        "third_order_path"
+    )
+
+    assert mapping["pfp"] == (
+        "propflow"
+    )
