@@ -1,5 +1,9 @@
 import random
 from collections.abc import Iterable
+from concurrent.futures import (
+    ProcessPoolExecutor,
+    as_completed,
+)
 from typing import Any
 
 import networkx as nx
@@ -15,6 +19,9 @@ from link_prediction.config import (
 from link_prediction.evaluation import (
     evaluate_score_table,
     load_fold_data,
+)
+from link_prediction.execution import (
+    resolve_process_count,
 )
 from link_prediction.methods.degree_based import (
     score_degree_based_candidates,
@@ -780,9 +787,284 @@ def summarize_negative_sampling_robustness(
     )
 
 
+def evaluate_robustness_fold(
+    benchmark_name: str,
+    network_id: str,
+    fold_number: int,
+) -> pd.DataFrame:
+    experiment_config = (
+        load_experiment_config()
+    )
+
+    networks_config = (
+        load_networks_config()
+    )
+
+    methods_config = (
+        load_methods_config()
+    )
+
+    random_seed = int(
+        experiment_config[
+            "experiment"
+        ][
+            "random_seed"
+        ]
+    )
+
+    negative_config = (
+        experiment_config[
+            "negative_sampling"
+        ]
+    )
+
+    primary_ratio = int(
+        negative_config[
+            "primary_ratio"
+        ]
+    )
+
+    ratios = (
+        normalize_negative_ratios(
+            ratios=
+                negative_config[
+                    "robustness_ratios"
+                ],
+            primary_ratio=
+                primary_ratio,
+        )
+    )
+
+    maximum_ratio = max(
+        ratios
+    )
+
+    network_config = (
+        networks_config[
+            "networks"
+        ][
+            network_id
+        ]
+    )
+
+    methods = (
+        methods_config[
+            "methods"
+        ]
+    )
+
+    method_ids = [
+        method_id
+        for (
+            method_id,
+            method_config,
+        ) in methods.items()
+        if method_config.get(
+            "enabled",
+            True,
+        )
+    ]
+
+    full_graph = (
+        load_processed_graph(
+            network_config[
+                "name"
+            ]
+        )
+    )
+
+    (
+        training_graph,
+        primary_candidates,
+    ) = load_fold_data(
+        benchmark_name=
+            benchmark_name,
+        network_id=
+            network_id,
+        fold_number=
+            fold_number,
+    )
+
+    candidate_tables = (
+        build_nested_robustness_candidates(
+            full_graph=
+                full_graph,
+            primary_candidates=
+                primary_candidates,
+            ratios=
+                ratios,
+            primary_ratio=
+                primary_ratio,
+            random_seed=
+                random_seed,
+            network_id=
+                network_id,
+            fold_number=
+                fold_number,
+        )
+    )
+
+    maximum_candidates = (
+        candidate_tables[
+            maximum_ratio
+        ]
+    )
+
+    maximum_scores = (
+        score_all_primary_methods(
+            graph=
+                training_graph,
+            candidates=
+                maximum_candidates,
+            methods_config=
+                methods_config,
+        )
+    )
+
+    frames = []
+
+    for ratio in ratios:
+        candidates = (
+            candidate_tables[
+                ratio
+            ]
+        )
+
+        scores = (
+            maximum_scores.loc[
+                candidates.index
+            ]
+        )
+
+        metrics = (
+            evaluate_score_table(
+                candidates=
+                    candidates,
+                scores=
+                    scores,
+                method_ids=
+                    method_ids,
+            )
+        )
+
+        metrics.insert(
+            0,
+            "fold",
+            fold_number,
+        )
+
+        metrics.insert(
+            0,
+            "domain",
+            network_config[
+                "domain"
+            ],
+        )
+
+        metrics.insert(
+            0,
+            "network",
+            network_config[
+                "name"
+            ],
+        )
+
+        metrics.insert(
+            0,
+            "network_id",
+            network_id,
+        )
+
+        metrics.insert(
+            0,
+            "benchmark",
+            benchmark_name,
+        )
+
+        metrics[
+            "negative_ratio"
+        ] = ratio
+
+        metrics[
+            "is_primary_ratio"
+        ] = (
+            ratio
+            == primary_ratio
+        )
+
+        metrics[
+            "family"
+        ] = (
+            metrics[
+                "method_id"
+            ].map(
+                {
+                    method_id:
+                        methods[
+                            method_id
+                        ][
+                            "family"
+                        ]
+                    for method_id
+                    in method_ids
+                }
+            )
+        )
+
+        metrics[
+            "method"
+        ] = (
+            metrics[
+                "method_id"
+            ].map(
+                {
+                    method_id:
+                        methods[
+                            method_id
+                        ][
+                            "name"
+                        ]
+                    for method_id
+                    in method_ids
+                }
+            )
+        )
+
+        frames.append(
+            metrics
+        )
+
+    result = pd.concat(
+        frames,
+        ignore_index=True,
+    )
+
+    expected_rows = (
+        len(
+            method_ids
+        )
+        * len(
+            ratios
+        )
+    )
+
+    if len(
+        result
+    ) != expected_rows:
+        raise RuntimeError(
+            "Unexpected robustness row count "
+            f"for {network_id}, "
+            f"fold {fold_number}: "
+            f"{len(result)}."
+        )
+
+    return result
+
+
 def run_negative_sampling_robustness(
     benchmark_name: str = "revision",
     resume: bool = True,
+    max_workers: int | str | None = "auto",
 ) -> tuple[
     pd.DataFrame,
     pd.DataFrame,
@@ -1013,6 +1295,8 @@ def run_negative_sampling_robustness(
             completed_rows
         )
 
+    pending_tasks = []
+
     for network_id in benchmark:
         network_config = (
             network_definitions[
@@ -1025,14 +1309,6 @@ def run_negative_sampling_robustness(
             True,
         ):
             continue
-
-        full_graph = (
-            load_processed_graph(
-                network_config[
-                    "name"
-                ]
-            )
-        )
 
         for fold_number in range(
             1,
@@ -1053,30 +1329,58 @@ def run_negative_sampling_robustness(
             ):
                 continue
 
-            (
-                training_graph,
-                primary_candidates,
-            ) = load_fold_data(
-                benchmark_name=
-                    benchmark_name,
-                network_id=
+            pending_tasks.append(
+                (
                     network_id,
-                fold_number=
                     fold_number,
+                )
             )
 
-            candidate_tables = (
-                build_nested_robustness_candidates(
-                    full_graph=
-                        full_graph,
-                    primary_candidates=
-                        primary_candidates,
-                    ratios=
-                        ratios,
-                    primary_ratio=
-                        primary_ratio,
-                    random_seed=
-                        random_seed,
+
+    worker_count = (
+        resolve_process_count(
+            max_workers
+        )
+    )
+
+    print(
+        "Robustness execution:"
+    )
+
+    print(
+        f"  pending folds: "
+        f"{len(pending_tasks)}"
+    )
+
+    print(
+        f"  workers: "
+        f"{worker_count}"
+    )
+
+
+    def save_checkpoint() -> None:
+        checkpoint_frame = (
+            pd.concat(
+                fold_frames,
+                ignore_index=True,
+            )
+        )
+
+        checkpoint_frame.to_csv(
+            checkpoint_path,
+            index=False,
+        )
+
+
+    if worker_count == 1:
+        for (
+            network_id,
+            fold_number,
+        ) in pending_tasks:
+            current_fold = (
+                evaluate_robustness_fold(
+                    benchmark_name=
+                        benchmark_name,
                     network_id=
                         network_id,
                     fold_number=
@@ -1084,173 +1388,67 @@ def run_negative_sampling_robustness(
                 )
             )
 
-            maximum_candidates = (
-                candidate_tables[
-                    maximum_ratio
-                ]
-            )
-
-            maximum_scores = (
-                score_all_primary_methods(
-                    graph=
-                        training_graph,
-                    candidates=
-                        maximum_candidates,
-                    methods_config=
-                        methods_config,
-                )
-            )
-
-            current_fold_frames = []
-
-            for ratio in ratios:
-                candidates = (
-                    candidate_tables[
-                        ratio
-                    ]
-                )
-
-                scores = (
-                    maximum_scores.loc[
-                        candidates.index
-                    ]
-                )
-
-                metrics = (
-                    evaluate_score_table(
-                        candidates=
-                            candidates,
-                        scores=
-                            scores,
-                        method_ids=
-                            method_ids,
-                    )
-                )
-
-                metrics.insert(
-                    0,
-                    "fold",
-                    fold_number,
-                )
-
-                metrics.insert(
-                    0,
-                    "domain",
-                    network_config[
-                        "domain"
-                    ],
-                )
-
-                metrics.insert(
-                    0,
-                    "network",
-                    network_config[
-                        "name"
-                    ],
-                )
-
-                metrics.insert(
-                    0,
-                    "network_id",
-                    network_id,
-                )
-
-                metrics.insert(
-                    0,
-                    "benchmark",
-                    benchmark_name,
-                )
-
-                metrics[
-                    "negative_ratio"
-                ] = ratio
-
-                metrics[
-                    "is_primary_ratio"
-                ] = (
-                    ratio
-                    == primary_ratio
-                )
-
-                metrics[
-                    "family"
-                ] = (
-                    metrics[
-                        "method_id"
-                    ]
-                    .map(
-                        {
-                            method_id:
-                                methods[
-                                    method_id
-                                ][
-                                    "family"
-                                ]
-                            for method_id
-                            in method_ids
-                        }
-                    )
-                )
-
-                metrics[
-                    "method"
-                ] = (
-                    metrics[
-                        "method_id"
-                    ]
-                    .map(
-                        {
-                            method_id:
-                                methods[
-                                    method_id
-                                ][
-                                    "name"
-                                ]
-                            for method_id
-                            in method_ids
-                        }
-                    )
-                )
-
-                current_fold_frames.append(
-                    metrics
-                )
-
-            current_fold = (
-                pd.concat(
-                    current_fold_frames,
-                    ignore_index=True,
-                )
-            )
-
-            if (
-                len(
-                    current_fold
-                )
-                != expected_rows_per_fold
-            ):
-                raise RuntimeError(
-                    "Unexpected number of robustness rows "
-                    f"for {network_id} "
-                    f"fold {fold_number}: "
-                    f"{len(current_fold)}."
-                )
-
             fold_frames.append(
                 current_fold
             )
 
-            checkpoint_frame = (
-                pd.concat(
-                    fold_frames,
-                    ignore_index=True,
-                )
+            save_checkpoint()
+
+            print(
+                "completed:",
+                network_id,
+                fold_number,
             )
 
-            checkpoint_frame.to_csv(
-                checkpoint_path,
-                index=False,
-            )
+    else:
+        with ProcessPoolExecutor(
+            max_workers=
+                worker_count
+        ) as executor:
+            futures = {
+                executor.submit(
+                    evaluate_robustness_fold,
+                    benchmark_name,
+                    network_id,
+                    fold_number,
+                ): (
+                    network_id,
+                    fold_number,
+                )
+                for (
+                    network_id,
+                    fold_number,
+                )
+                in pending_tasks
+            }
+
+            for future in (
+                as_completed(
+                    futures
+                )
+            ):
+                (
+                    network_id,
+                    fold_number,
+                ) = futures[
+                    future
+                ]
+
+                current_fold = (
+                    future.result()
+                )
+
+                fold_frames.append(
+                    current_fold
+                )
+
+                save_checkpoint()
+
+                print(
+                    "completed:",
+                    network_id,
+                    fold_number,
+                )
 
     if not fold_frames:
         raise RuntimeError(
