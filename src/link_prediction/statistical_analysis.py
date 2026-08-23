@@ -85,10 +85,6 @@ def build_method_metric_matrix(
             columns="method_id",
             values=metric,
         )
-        .dropna(
-            axis=0,
-            how="any",
-        )
         .sort_index(
             axis=0,
         )
@@ -96,6 +92,17 @@ def build_method_metric_matrix(
             axis=1,
         )
     )
+
+    missing_value_count = int(
+        matrix.isna().sum().sum()
+    )
+
+    if missing_value_count > 0:
+        raise ValueError(
+            "Method matrix contains "
+            f"{missing_value_count} missing "
+            "network-method values."
+        )
 
     if matrix.shape[0] < 2:
         raise ValueError(
@@ -190,6 +197,18 @@ def pairwise_wilcoxon_holm(
     method_matrix: pd.DataFrame,
     alpha: float = 0.05,
 ) -> pd.DataFrame:
+    if method_matrix.shape[0] < 2:
+        raise ValueError(
+            "Pairwise comparison requires "
+            "at least two networks."
+        )
+
+    if method_matrix.shape[1] < 2:
+        raise ValueError(
+            "Pairwise comparison requires "
+            "at least two methods."
+        )
+
     if not 0.0 < alpha < 1.0:
         raise ValueError(
             "alpha must be between zero and one."

@@ -128,6 +128,41 @@ def test_friedman_method_test():
     ] < 0.05
 
 
+def test_method_matrix_rejects_missing_values():
+    network_metrics = (
+        aggregate_network_metrics(
+            build_fold_metrics(),
+            "average_precision",
+        )
+    )
+
+    incomplete = network_metrics[
+        ~(
+            (
+                network_metrics[
+                    "network_id"
+                ]
+                == "network_4"
+            )
+            & (
+                network_metrics[
+                    "method_id"
+                ]
+                == "third"
+            )
+        )
+    ]
+
+    with pytest.raises(
+        ValueError,
+        match="missing network-method values",
+    ):
+        build_method_metric_matrix(
+            incomplete,
+            "average_precision",
+        )
+
+
 def test_pairwise_wilcoxon_holm():
     network_metrics = (
         aggregate_network_metrics(
@@ -227,6 +262,23 @@ def test_pairwise_wilcoxon_handles_ties():
     assert result[
         "ties"
     ] == 3
+
+
+def test_pairwise_wilcoxon_requires_two_networks():
+    matrix = pd.DataFrame(
+        {
+            "first": [0.6],
+            "second": [0.5],
+        }
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="at least two networks",
+    ):
+        pairwise_wilcoxon_holm(
+            matrix
+        )
 
 
 def test_paired_rank_biserial():
