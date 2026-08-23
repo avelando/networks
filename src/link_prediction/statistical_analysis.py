@@ -749,6 +749,32 @@ def pairwise_wilcoxon_holm(
     return comparisons
 
 
+def write_statistical_csv(
+    dataframe: pd.DataFrame,
+    path: Path,
+) -> None:
+    path.parent.mkdir(
+        parents=True,
+        exist_ok=True,
+    )
+
+    temporary_path = (
+        path.with_suffix(
+            path.suffix
+            + ".part"
+        )
+    )
+
+    dataframe.to_csv(
+        temporary_path,
+        index=False,
+    )
+
+    temporary_path.replace(
+        path
+    )
+
+
 def analyze_confirmatory_metric(
     fold_metrics: pd.DataFrame,
     method_ids: list[str],
@@ -859,3 +885,138 @@ def analyze_confirmatory_metric(
         mean_ranks,
         pairwise,
     )
+
+
+def run_confirmatory_analysis(
+    fold_metrics: pd.DataFrame,
+    method_ids: list[str],
+    metrics: tuple[str, ...] = (
+        "average_precision",
+        "roc_auc",
+    ),
+    alpha: float = 0.05,
+    benchmark_name: str = "revision",
+    output_dir: Path = (
+        SUMMARY_RESULTS_DIR
+    ),
+) -> dict[str, pd.DataFrame]:
+    if not metrics:
+        raise ValueError(
+            "At least one statistical "
+            "metric is required."
+        )
+
+    if len(
+        set(metrics)
+    ) != len(metrics):
+        raise ValueError(
+            "Statistical metrics "
+            "must be unique."
+        )
+
+    observed_benchmarks = set(
+        fold_metrics[
+            "benchmark"
+        ]
+    )
+
+    if observed_benchmarks != {
+        benchmark_name
+    }:
+        raise ValueError(
+            "Fold metrics do not match "
+            "the requested benchmark: "
+            f"{benchmark_name}"
+        )
+
+    network_metric_frames = []
+    friedman_frames = []
+    rank_frames = []
+    pairwise_frames = []
+
+    for metric in metrics:
+        (
+            network_metrics,
+            friedman,
+            mean_ranks,
+            pairwise,
+        ) = analyze_confirmatory_metric(
+            fold_metrics=
+                fold_metrics,
+            method_ids=
+                method_ids,
+            metric=
+                metric,
+            alpha=
+                alpha,
+        )
+
+        network_metrics = (
+            network_metrics
+            .rename(
+                columns={
+                    metric:
+                        "value",
+                }
+            )
+        )
+
+        network_metrics.insert(
+            4,
+            "metric",
+            metric,
+        )
+
+        network_metric_frames.append(
+            network_metrics
+        )
+
+        friedman_frames.append(
+            friedman
+        )
+
+        rank_frames.append(
+            mean_ranks
+        )
+
+        pairwise_frames.append(
+            pairwise
+        )
+
+    outputs = {
+        "network_metrics":
+            pd.concat(
+                network_metric_frames,
+                ignore_index=True,
+            ),
+        "friedman":
+            pd.concat(
+                friedman_frames,
+                ignore_index=True,
+            ),
+        "mean_ranks":
+            pd.concat(
+                rank_frames,
+                ignore_index=True,
+            ),
+        "pairwise":
+            pd.concat(
+                pairwise_frames,
+                ignore_index=True,
+            ),
+    }
+
+    for output_name, dataframe in (
+        outputs.items()
+    ):
+        write_statistical_csv(
+            dataframe,
+            output_dir
+            / (
+                f"{benchmark_name}_"
+                "confirmatory_"
+                f"{output_name}.csv"
+            ),
+        )
+
+    return outputs

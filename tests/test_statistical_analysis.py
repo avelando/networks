@@ -10,6 +10,7 @@ from link_prediction.statistical_analysis import (
     mean_method_ranks,
     paired_rank_biserial,
     pairwise_wilcoxon_holm,
+    run_confirmatory_analysis,
     select_confirmatory_methods,
 )
 
@@ -749,3 +750,99 @@ def test_analyze_confirmatory_metric_skips_post_hoc():
     }
 
     assert pairwise.empty
+
+
+def test_run_confirmatory_analysis(
+    tmp_path,
+):
+    outputs = (
+        run_confirmatory_analysis(
+            fold_metrics=
+                build_fold_metrics(),
+            method_ids=[
+                "first",
+                "second",
+                "third",
+            ],
+            metrics=(
+                "average_precision",
+            ),
+            benchmark_name=
+                "revision",
+            output_dir=
+                tmp_path,
+        )
+    )
+
+    assert set(
+        outputs
+    ) == {
+        "network_metrics",
+        "friedman",
+        "mean_ranks",
+        "pairwise",
+    }
+
+    assert set(
+        outputs[
+            "network_metrics"
+        ][
+            "metric"
+        ]
+    ) == {
+        "average_precision",
+    }
+
+    assert set(
+        outputs[
+            "network_metrics"
+        ][
+            "value"
+        ]
+    ) == {
+        0.9,
+        0.8,
+        0.7,
+        0.6,
+        0.5,
+        0.4,
+    }
+
+    assert outputs[
+        "friedman"
+    ].loc[
+        0,
+        "reject_null",
+    ]
+
+    assert len(
+        outputs[
+            "pairwise"
+        ]
+    ) == 3
+
+    for output_name in (
+        outputs
+    ):
+        path = (
+            tmp_path
+            / (
+                "revision_"
+                "confirmatory_"
+                f"{output_name}.csv"
+            )
+        )
+
+        assert path.exists()
+
+        persisted = pd.read_csv(
+            path
+        )
+
+        assert len(
+            persisted
+        ) == len(
+            outputs[
+                output_name
+            ]
+        )
