@@ -277,6 +277,89 @@ def load_benchmark_fold_metrics(
     )
 
 
+def select_confirmatory_methods(
+    fold_metrics: pd.DataFrame,
+    method_ids: list[str],
+) -> pd.DataFrame:
+    if len(
+        set(method_ids)
+    ) != len(method_ids):
+        raise ValueError(
+            "Confirmatory method identifiers "
+            "must be unique."
+        )
+
+    if len(method_ids) < 3:
+        raise ValueError(
+            "Confirmatory analysis requires "
+            "at least three methods."
+        )
+
+    available_method_ids = set(
+        fold_metrics[
+            "method_id"
+        ]
+    )
+
+    missing_method_ids = (
+        set(method_ids)
+        - available_method_ids
+    )
+
+    if missing_method_ids:
+        raise ValueError(
+            "Confirmatory methods are missing "
+            "from fold metrics: "
+            f"{sorted(missing_method_ids)}"
+        )
+
+    selected = (
+        fold_metrics[
+            fold_metrics[
+                "method_id"
+            ].isin(
+                method_ids
+            )
+        ]
+        .copy()
+        .reset_index(
+            drop=True
+        )
+    )
+
+    selected[
+        "confirmatory_order"
+    ] = (
+        selected[
+            "method_id"
+        ].map(
+            {
+                method_id:
+                    order
+                for order, method_id
+                in enumerate(
+                    method_ids
+                )
+            }
+        )
+    )
+
+    return (
+        selected
+        .sort_values(
+            [
+                "confirmatory_order",
+                "benchmark",
+                "network_id",
+                "fold",
+            ]
+        )
+        .reset_index(
+            drop=True
+        )
+    )
+
+
 def aggregate_network_metrics(
     fold_metrics: pd.DataFrame,
     metric: str,

@@ -8,6 +8,7 @@ from link_prediction.statistical_analysis import (
     load_benchmark_fold_metrics,
     paired_rank_biserial,
     pairwise_wilcoxon_holm,
+    select_confirmatory_methods,
 )
 
 
@@ -215,6 +216,78 @@ def test_load_benchmark_fold_metrics_rejects_missing_method(
                 tmp_path,
             methods_config=
                 build_methods_config(),
+        )
+
+
+def test_select_confirmatory_methods():
+    fold_metrics = (
+        build_fold_metrics()
+    )
+
+    selected = (
+        select_confirmatory_methods(
+            fold_metrics,
+            [
+                "third",
+                "first",
+                "second",
+            ],
+        )
+    )
+
+    assert set(
+        selected[
+            "method_id"
+        ]
+    ) == {
+        "first",
+        "second",
+        "third",
+    }
+
+    assert (
+        selected[
+            "confirmatory_order"
+        ]
+        .drop_duplicates()
+        .to_list()
+    ) == [
+        0,
+        1,
+        2,
+    ]
+
+    assert (
+        selected[
+            [
+                "confirmatory_order",
+                "method_id",
+            ]
+        ]
+        .drop_duplicates()
+        [
+            "method_id"
+        ]
+        .to_list()
+    ) == [
+        "third",
+        "first",
+        "second",
+    ]
+
+
+def test_select_confirmatory_methods_rejects_missing_method():
+    with pytest.raises(
+        ValueError,
+        match="missing from fold metrics",
+    ):
+        select_confirmatory_methods(
+            build_fold_metrics(),
+            [
+                "first",
+                "second",
+                "missing",
+            ],
         )
 
 
@@ -506,4 +579,32 @@ def test_load_benchmark_fold_metrics_rejects_incomplete_blocks(
                 tmp_path,
             methods_config=
                 build_methods_config(),
+        )
+
+
+def test_select_confirmatory_methods_requires_three_methods():
+    with pytest.raises(
+        ValueError,
+        match="at least three methods",
+    ):
+        select_confirmatory_methods(
+            build_fold_metrics(),
+            [
+                "first",
+                "second",
+            ],
+        )
+
+def test_select_confirmatory_methods_rejects_duplicates():
+    with pytest.raises(
+        ValueError,
+        match="must be unique",
+    ):
+        select_confirmatory_methods(
+            build_fold_metrics(),
+            [
+                "first",
+                "second",
+                "second",
+            ],
         )
