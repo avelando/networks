@@ -2,6 +2,9 @@ from time import perf_counter
 from typing import Any
 
 import pandas as pd
+from threadpoolctl import (
+    threadpool_limits,
+)
 
 from link_prediction.config import (
     SUMMARY_RESULTS_DIR,
@@ -10,6 +13,9 @@ from link_prediction.config import (
     load_networks_config,
 )
 from link_prediction.evaluation import load_fold_data
+from link_prediction.execution import (
+    run_process_tasks,
+)
 from link_prediction.methods.quasi_local_paths import (
     score_quasi_local_path_candidates,
 )
@@ -291,45 +297,19 @@ def summarize_parameter_sensitivity(
     )
 
 
-def run_parameter_sensitivity(
-    benchmark_name: str = "revision",
-    max_workers: int | str | None = "auto",
-) -> tuple[
-    pd.DataFrame,
-    pd.DataFrame,
-    pd.DataFrame,
-]:
-    experiment_config = (
-        load_experiment_config()
-    )
+def evaluate_parameter_sensitivity_fold(
+    benchmark_name: str,
+    network_id: str,
+    fold_number: int,
+) -> pd.DataFrame:
+    networks_config = load_networks_config()
+    methods_config = load_methods_config()
 
-    networks_config = (
-        load_networks_config()
-    )
-
-    methods_config = (
-        load_methods_config()
-    )
-
-    n_folds = int(
-        experiment_config[
-            "experiment"
-        ][
-            "n_folds"
-        ]
-    )
-
-    benchmark = networks_config[
-        "benchmarks"
+    network_config = networks_config[
+        "networks"
     ][
-        benchmark_name
+        network_id
     ]
-
-    network_definitions = (
-        networks_config[
-            "networks"
-        ]
-    )
 
     methods = methods_config[
         "methods"
@@ -377,59 +357,104 @@ def run_parameter_sensitivity(
         walk_step_sets.pop()
     )
 
+    graph, candidates = load_fold_data(
+        benchmark_name=benchmark_name,
+        network_id=network_id,
+        fold_number=fold_number,
+    )
+
     rows = []
 
-    for network_id in benchmark:
-        network_config = (
-            network_definitions[
-                network_id
-            ]
-        )
+    with threadpool_limits(
+        limits=1
+    ):
+        for beta in beta_values:
+            start = perf_counter()
 
-        if not network_config.get(
-            "enabled",
-            True,
-        ):
-            continue
-
-        for fold_number in range(
-            1,
-            n_folds + 1,
-        ):
-            (
-                graph,
-                candidates,
-            ) = load_fold_data(
-                benchmark_name=
-                    benchmark_name,
-                network_id=
-                    network_id,
-                fold_number=
-                    fold_number,
+            score_table = (
+                score_quasi_local_path_candidates(
+                    graph=graph,
+                    candidates=candidates,
+                    beta=float(beta),
+                    length=lpi_length,
+                )
             )
 
-            for beta in beta_values:
-                start = perf_counter()
+            scoring_seconds = (
+                perf_counter()
+                - start
+            )
 
-                score_table = (
-                    score_quasi_local_path_candidates(
-                        graph=graph,
-                        candidates=candidates,
-                        beta=float(beta),
-                        length=lpi_length,
-                    )
-                )
+            metrics = evaluate_parameter_scores(
+                candidates,
+                score_table["lpi"],
+            )
 
-                scoring_seconds = (
-                    perf_counter()
-                    - start
+            rows.append(
+                {
+                    "benchmark":
+                        benchmark_name,
+                    "network_id":
+                        network_id,
+                    "network":
+                        network_config["name"],
+                    "domain":
+                        network_config["domain"],
+                    "fold":
+                        fold_number,
+                    "family":
+                        lpi_config["family"],
+                    "method_id":
+                        "lpi",
+                    "method":
+                        sensitivity_method_name(
+                            method_id="lpi",
+                            parameter_name="beta",
+                            parameter_value=beta,
+                        ),
+                    "parameter":
+                        "beta",
+                    "parameter_value":
+                        beta,
+                    "is_primary":
+                        beta
+                        == lpi_config[
+                            "parameters"
+                        ][
+                            "beta"
+                        ],
+                    "configuration_scoring_seconds":
+                        scoring_seconds,
+                    **metrics,
+                }
+            )
+
+        for steps in step_values:
+            start = perf_counter()
+
+            score_table = (
+                score_quasi_local_walk_candidates(
+                    graph=graph,
+                    candidates=candidates,
+                    steps=int(steps),
                 )
+            )
+
+            scoring_seconds = (
+                perf_counter()
+                - start
+            )
+
+            for method_id in walk_method_ids:
+                method_config = methods[
+                    method_id
+                ]
 
                 metrics = (
                     evaluate_parameter_scores(
                         candidates,
                         score_table[
-                            "lpi"
+                            method_id
                         ],
                     )
                 )
@@ -451,27 +476,30 @@ def run_parameter_sensitivity(
                         "fold":
                             fold_number,
                         "family":
-                            lpi_config[
+                            method_config[
                                 "family"
                             ],
                         "method_id":
-                            "lpi",
+                            method_id,
                         "method":
                             sensitivity_method_name(
-                                method_id="lpi",
-                                parameter_name="beta",
-                                parameter_value=beta,
+                                method_id=
+                                    method_id,
+                                parameter_name=
+                                    "steps",
+                                parameter_value=
+                                    steps,
                             ),
                         "parameter":
-                            "beta",
+                            "steps",
                         "parameter_value":
-                            beta,
+                            steps,
                         "is_primary":
-                            beta
-                            == lpi_config[
+                            steps
+                            == method_config[
                                 "parameters"
                             ][
-                                "beta"
+                                "steps"
                             ],
                         "configuration_scoring_seconds":
                             scoring_seconds,
@@ -479,87 +507,81 @@ def run_parameter_sensitivity(
                     }
                 )
 
-            for steps in step_values:
-                start = perf_counter()
-
-                score_table = (
-                    score_quasi_local_walk_candidates(
-                        graph=graph,
-                        candidates=candidates,
-                        steps=int(steps),
-                    )
-                )
-
-                scoring_seconds = (
-                    perf_counter()
-                    - start
-                )
-
-                for method_id in (
-                    walk_method_ids
-                ):
-                    method_config = (
-                        methods[
-                            method_id
-                        ]
-                    )
-
-                    metrics = (
-                        evaluate_parameter_scores(
-                            candidates,
-                            score_table[
-                                method_id
-                            ],
-                        )
-                    )
-
-                    rows.append(
-                        {
-                            "benchmark":
-                                benchmark_name,
-                            "network_id":
-                                network_id,
-                            "network":
-                                network_config[
-                                    "name"
-                                ],
-                            "domain":
-                                network_config[
-                                    "domain"
-                                ],
-                            "fold":
-                                fold_number,
-                            "family":
-                                method_config[
-                                    "family"
-                                ],
-                            "method_id":
-                                method_id,
-                            "method":
-                                sensitivity_method_name(
-                                    method_id=method_id,
-                                    parameter_name="steps",
-                                    parameter_value=steps,
-                                ),
-                            "parameter":
-                                "steps",
-                            "parameter_value":
-                                steps,
-                            "is_primary":
-                                steps
-                                == method_config[
-                                    "parameters"
-                                ][
-                                    "steps"
-                                ],
-                            "configuration_scoring_seconds":
-                                scoring_seconds,
-                            **metrics,
-                        }
-                    )
-
-    fold_metrics = pd.DataFrame(
+    return pd.DataFrame(
         rows
+    )
+
+
+def run_parameter_sensitivity(
+    benchmark_name: str = "revision",
+    max_workers: int | str | None = "auto",
+) -> tuple[
+    pd.DataFrame,
+    pd.DataFrame,
+    pd.DataFrame,
+]:
+    experiment_config = (
+        load_experiment_config()
+    )
+
+    networks_config = (
+        load_networks_config()
+    )
+
+    n_folds = int(
+        experiment_config[
+            "experiment"
+        ][
+            "n_folds"
+        ]
+    )
+
+    benchmark = networks_config[
+        "benchmarks"
+    ][
+        benchmark_name
+    ]
+
+    network_definitions = (
+        networks_config[
+            "networks"
+        ]
+    )
+
+    tasks = []
+
+    for network_id in benchmark:
+        if not network_definitions[
+            network_id
+        ].get(
+            "enabled",
+            True,
+        ):
+            continue
+
+        for fold_number in range(
+            1,
+            n_folds + 1,
+        ):
+            tasks.append(
+                (
+                    benchmark_name,
+                    network_id,
+                    fold_number,
+                )
+            )
+
+    rows = run_process_tasks(
+        evaluate_parameter_sensitivity_fold,
+        tasks,
+        max_workers=max_workers,
+        profile="sensitivity",
+        label="parameter sensitivity",
+    )
+
+    fold_metrics = pd.concat(
+        rows,
+        ignore_index=True,
     )
 
     (

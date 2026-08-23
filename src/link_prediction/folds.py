@@ -13,6 +13,9 @@ from link_prediction.config import (
     load_experiment_config,
     load_networks_config,
 )
+from link_prediction.execution import (
+    run_process_tasks,
+)
 from link_prediction.preprocessing import (
     load_processed_graph,
 )
@@ -488,8 +491,32 @@ def build_network_folds(
     )
 
 
+def build_network_folds_task(
+    benchmark_name: str,
+    network_id: str,
+    network_name: str,
+    n_folds: int,
+    negative_ratio: int,
+    random_seed: int,
+) -> pd.DataFrame:
+    graph = load_processed_graph(
+        network_name
+    )
+
+    return build_network_folds(
+        graph=graph,
+        network_id=network_id,
+        network_name=network_name,
+        benchmark_name=benchmark_name,
+        n_folds=n_folds,
+        negative_ratio=negative_ratio,
+        random_seed=random_seed,
+    )
+
+
 def build_benchmark_folds(
     benchmark_name: str = "revision",
+    max_workers: int | str | None = "auto",
 ) -> pd.DataFrame:
     experiment_config = (
         load_experiment_config()
@@ -566,7 +593,7 @@ def build_benchmark_folds(
         ]
     )
 
-    summaries = []
+    tasks = []
 
     for network_id in benchmark:
         network_config = (
@@ -581,31 +608,26 @@ def build_benchmark_folds(
         ):
             continue
 
-        graph = load_processed_graph(
-            network_config[
-                "name"
-            ]
-        )
-
-        summary = (
-            build_network_folds(
-                graph=graph,
-                network_id=network_id,
-                network_name=(
-                    network_config[
-                        "name"
-                    ]
-                ),
-                benchmark_name=benchmark_name,
-                n_folds=n_folds,
-                negative_ratio=negative_ratio,
-                random_seed=random_seed,
+        tasks.append(
+            (
+                benchmark_name,
+                network_id,
+                network_config[
+                    "name"
+                ],
+                n_folds,
+                negative_ratio,
+                random_seed,
             )
         )
 
-        summaries.append(
-            summary
-        )
+    summaries = run_process_tasks(
+        build_network_folds_task,
+        tasks,
+        max_workers=max_workers,
+        profile="fold_building",
+        label="fold building",
+    )
 
     fold_summary = pd.concat(
         summaries,

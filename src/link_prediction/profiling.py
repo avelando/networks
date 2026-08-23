@@ -20,6 +20,9 @@ from link_prediction.datasets import (
     load_graph,
     prepare_dataset,
 )
+from link_prediction.execution import (
+    run_process_tasks,
+)
 from link_prediction.preprocessing import (
     save_processed_graph,
     standardize_graph,
@@ -104,9 +107,34 @@ def prepare_network(
     return processed_graph, profile, manifest
 
 
+def prepare_network_summary(
+    network_id: str,
+    network_config: dict[str, Any],
+    graph_config: dict[str, Any],
+    overwrite: bool,
+) -> tuple[
+    dict[str, Any],
+    dict[str, Any],
+]:
+    _, profile, manifest = (
+        prepare_network(
+            network_id=network_id,
+            network_config=network_config,
+            graph_config=graph_config,
+            overwrite=overwrite,
+        )
+    )
+
+    return (
+        profile,
+        manifest,
+    )
+
+
 def prepare_benchmark(
     benchmark_name: str = "revision",
     overwrite: bool = False,
+    max_workers: int | str | None = "auto",
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     ensure_project_directories()
 
@@ -117,24 +145,49 @@ def prepare_benchmark(
     network_definitions = networks_config["networks"]
     graph_config = experiment_config["graph"]
 
-    profiles = []
-    manifests = []
+    tasks = []
 
     for network_id in benchmark:
-        network_config = network_definitions[network_id]
-
-        if not network_config.get("enabled", True):
-            continue
-
-        _, profile, manifest = prepare_network(
-            network_id=network_id,
-            network_config=network_config,
-            graph_config=graph_config,
-            overwrite=overwrite,
+        network_config = (
+            network_definitions[
+                network_id
+            ]
         )
 
-        profiles.append(profile)
-        manifests.append(manifest)
+        if not network_config.get(
+            "enabled",
+            True,
+        ):
+            continue
+
+        tasks.append(
+            (
+                network_id,
+                network_config,
+                graph_config,
+                overwrite,
+            )
+        )
+
+    prepared = run_process_tasks(
+        prepare_network_summary,
+        tasks,
+        max_workers=max_workers,
+        profile="profiling",
+        label="network profiling",
+    )
+
+    profiles = [
+        profile
+        for profile, _
+        in prepared
+    ]
+
+    manifests = [
+        manifest
+        for _, manifest
+        in prepared
+    ]
 
     profile_table = build_network_profile_table(profiles)
 

@@ -8,6 +8,9 @@ from typing import Any
 
 import networkx as nx
 import pandas as pd
+from threadpoolctl import (
+    threadpool_limits,
+)
 
 from link_prediction.config import (
     RESULTS_DIR,
@@ -48,13 +51,6 @@ from link_prediction.sampling import (
     canonical_edge,
     derive_seed,
     sample_non_edges,
-)
-from contextlib import (
-    nullcontext,
-)
-
-from threadpoolctl import (
-    threadpool_limits,
 )
 
 METRIC_COLUMNS = (
@@ -1148,6 +1144,17 @@ def run_negative_sampling_robustness(
         ]
     )
 
+    enabled_network_ids = [
+        network_id
+        for network_id in benchmark
+        if network_definitions[
+            network_id
+        ].get(
+            "enabled",
+            True,
+        )
+    ]
+
     methods = (
         methods_config[
             "methods"
@@ -1308,7 +1315,7 @@ def run_negative_sampling_robustness(
 
     pending_tasks = []
 
-    for network_id in benchmark:
+    for network_id in enabled_network_ids:
         network_config = (
             network_definitions[
                 network_id
@@ -1349,15 +1356,10 @@ def run_negative_sampling_robustness(
 
 
     if pending_tasks:
-        worker_count = min(
-            resolve_process_count(
-                max_workers,
-                profile="robustness",
-                task_count=len(
-                    pending_tasks
-                ),
-            )
-            len(
+        worker_count = resolve_process_count(
+            max_workers,
+            profile="robustness",
+            task_count=len(
                 pending_tasks
             ),
         )
@@ -1387,9 +1389,20 @@ def run_negative_sampling_robustness(
             )
         )
 
+        temporary_path = (
+            checkpoint_path
+            .with_suffix(
+                ".csv.tmp"
+            )
+        )
+
         checkpoint_frame.to_csv(
-            checkpoint_path,
+            temporary_path,
             index=False,
+        )
+
+        temporary_path.replace(
+            checkpoint_path
         )
 
 
@@ -1406,6 +1419,7 @@ def run_negative_sampling_robustness(
                         network_id,
                     fold_number=
                         fold_number,
+                    native_threads=None,
                 )
             )
 
@@ -1432,6 +1446,7 @@ def run_negative_sampling_robustness(
                     benchmark_name,
                     network_id,
                     fold_number,
+                    1,
                 ): (
                     network_id,
                     fold_number,
@@ -1505,7 +1520,7 @@ def run_negative_sampling_robustness(
 
     expected_total_rows = (
         len(
-            benchmark
+            enabled_network_ids
         )
         * n_folds
         * len(
