@@ -1,0 +1,9 @@
+check,expected,observed,passed
+network_count,8,8,True
+method_count,27,27,True
+fold_count,5,5,True
+fold_metric_row_count,1080,1080,True
+methods_per_network_fold,27,27,True
+folds_per_network_method,5,5,True
+dataset_manifest_count,8,8,True
+dataset_source_hashes,True,True,True

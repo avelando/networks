@@ -1,0 +1,28 @@
+method_id,method,family,analysis_family,complexity_id,complexity,complexity_latex
+cn,CN,local_similarity,standard_local,local_neighborhood,O(v k^3),$O(vk^3)$
+aa,AA,local_similarity,standard_local,local_neighborhood,O(v k^3),$O(vk^3)$
+ra,RA,local_similarity,standard_local,local_neighborhood,O(v k^3),$O(vk^3)$
+ja,JA,local_similarity,standard_local,local_neighborhood,O(v k^3),$O(vk^3)$
+sa,SA,local_similarity,standard_local,local_neighborhood,O(v k^3),$O(vk^3)$
+so,SO,local_similarity,standard_local,local_neighborhood,O(v k^3),$O(vk^3)$
+hpi,HPI,local_similarity,standard_local,local_neighborhood,O(v k^3),$O(vk^3)$
+hdi,HDI,local_similarity,standard_local,local_neighborhood,O(v k^3),$O(vk^3)$
+llhn,LLHN,local_similarity,standard_local,local_neighborhood,O(v k^3),$O(vk^3)$
+pa,PA,degree_based,standard_local,degree_pair,O(v k^2),$O(vk^2)$
+lnb_cn,LNB-CN,local_bayesian,local_bayesian,local_neighborhood,O(v k^3),$O(vk^3)$
+lnb_aa,LNB-AA,local_bayesian,local_bayesian,local_neighborhood,O(v k^3),$O(vk^3)$
+lnb_ra,LNB-RA,local_bayesian,local_bayesian,local_neighborhood,O(v k^3),$O(vk^3)$
+ra_cni,RA-CNI,enhanced_local,enhanced_local,extended_local,O(v k^4),$O(vk^4)$
+ia1,IA1,enhanced_local,enhanced_local,extended_local,O(v k^4),$O(vk^4)$
+ia2,IA2,enhanced_local,enhanced_local,local_neighborhood,O(v k^3),$O(vk^3)$
+car_cn,CAR-CN,enhanced_local,enhanced_local,extended_local,O(v k^4),$O(vk^4)$
+car_aa,CAR-AA,enhanced_local,enhanced_local,extended_local,O(v k^4),$O(vk^4)$
+car_ra,CAR-RA,enhanced_local,enhanced_local,extended_local,O(v k^4),$O(vk^4)$
+fsw,FSW,enhanced_local,enhanced_local,local_neighborhood,O(v k^3),$O(vk^3)$
+lit,LIT-i2,enhanced_local,enhanced_local,iterative_local,O(l v k^3),$O(lvk^3)$
+lpi,LPI-beta-0.001,quasi_local_path,quasi_local_path,short_path_walk,O(l v^2 k),$O(lv^2k)$
+ora_cni,ORA-CNI-beta-0.001,quasi_local_path,quasi_local_path,third_order_path,O(v k^6),$O(vk^6)$
+fl,FL-l3,quasi_local_path,quasi_local_path,short_path_walk,O(l v^2 k),$O(lv^2k)$
+lrw,LRW-l3,quasi_local_walk,quasi_local_walk,short_path_walk,O(l v^2 k),$O(lv^2k)$
+srw,SRW-l3,quasi_local_walk,quasi_local_walk,short_path_walk,O(l v^2 k),$O(lv^2k)$
+pfp,PFP-l3,quasi_local_walk,quasi_local_walk,propflow,O(v l k^l),$O(vlk^l)$

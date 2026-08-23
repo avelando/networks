@@ -1,0 +1,13 @@
+structural_property,structural_property_label,performance_measure,performance_measure_label,network_count,spearman_correlation,p_value
+processed_nodes,Processed nodes,mean_method_average_precision,Mean method AP,8,0.0,1.0
+processed_nodes,Processed nodes,maximum_method_average_precision,Maximum method AP,8,0.19047619047619052,0.6514014957024814
+density,Density,mean_method_average_precision,Mean method AP,8,0.5000000000000001,0.2070312499999999
+density,Density,maximum_method_average_precision,Maximum method AP,8,0.261904761904762,0.530922861565801
+average_degree,Average degree,mean_method_average_precision,Mean method AP,8,0.7380952380952381,0.03655276105286081
+average_degree,Average degree,maximum_method_average_precision,Maximum method AP,8,0.5000000000000001,0.2070312499999999
+average_clustering,Average clustering,mean_method_average_precision,Mean method AP,8,0.9047619047619048,0.002008275505429469
+average_clustering,Average clustering,maximum_method_average_precision,Maximum method AP,8,1.0,0.0
+transitivity,Transitivity,mean_method_average_precision,Mean method AP,8,0.8571428571428572,0.0065300172547152905
+transitivity,Transitivity,maximum_method_average_precision,Maximum method AP,8,0.9523809523809524,0.000260400024387251
+degree_assortativity,Degree assortativity,mean_method_average_precision,Mean method AP,8,0.4761904761904762,0.23293553465009798
+degree_assortativity,Degree assortativity,maximum_method_average_precision,Maximum method AP,8,0.523809523809524,0.1827207505397148

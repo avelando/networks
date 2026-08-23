@@ -1,0 +1,7 @@
+metric,first_method,second_method,network_count,statistic,p_value,median_difference,rank_biserial,first_wins,ties,second_wins,adjusted_p_value,reject_null
+average_precision,lpi,pfp,8,0.0,0.0078125,0.005479709845898462,1.0,8,0,0,0.0234375,True
+average_precision,lpi,srw,8,4.0,0.0546875,-0.0020969703706155696,-0.7777777777777778,1,0,7,0.0546875,False
+average_precision,pfp,srw,8,0.0,0.0078125,-0.006491163527119259,-1.0,0,0,8,0.0234375,True
+roc_auc,lpi,pfp,8,1.0,0.015625,0.002556176252600628,0.9444444444444444,7,0,1,0.03125,True
+roc_auc,lpi,srw,8,4.0,0.0546875,-0.0016532934718268,-0.7777777777777778,1,0,7,0.0546875,False
+roc_auc,pfp,srw,8,0.0,0.0078125,-0.003700770554859456,-1.0,0,0,8,0.0234375,True

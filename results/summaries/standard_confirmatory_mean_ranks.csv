@@ -1,0 +1,7 @@
+metric,method_id,mean_rank
+average_precision,srw,1.125
+average_precision,lpi,1.875
+average_precision,pfp,3.0
+roc_auc,srw,1.125
+roc_auc,lpi,2.0
+roc_auc,pfp,2.875
