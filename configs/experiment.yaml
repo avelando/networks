@@ -34,9 +34,9 @@ statistics:
     - roc_auc
   confirmatory_methods:
     - srw
+    - fl
     - lpi
     - pfp
-
 
 negative_sampling:
   primary_ratio: 1
