@@ -3,9 +3,11 @@ import pytest
 
 from link_prediction.statistical_analysis import (
     aggregate_network_metrics,
+    analyze_confirmatory_metric,
     build_method_metric_matrix,
     friedman_method_test,
     load_benchmark_fold_metrics,
+    mean_method_ranks,
     paired_rank_biserial,
     pairwise_wilcoxon_holm,
     select_confirmatory_methods,
@@ -314,6 +316,44 @@ def test_aggregate_network_metrics():
     }
 
 
+def test_mean_method_ranks():
+    network_metrics = (
+        aggregate_network_metrics(
+            build_fold_metrics(),
+            "average_precision",
+        )
+    )
+
+    matrix = (
+        build_method_metric_matrix(
+            network_metrics,
+            "average_precision",
+        )
+    )
+
+    ranks = mean_method_ranks(
+        matrix
+    )
+
+    assert ranks[
+        "method_id"
+    ].to_list() == [
+        "first",
+        "second",
+        "third",
+    ]
+
+    assert ranks[
+        "mean_rank"
+    ].to_list() == pytest.approx(
+        [
+            1.0,
+            2.0,
+            3.0,
+        ]
+    )
+
+
 def test_friedman_method_test():
     network_metrics = (
         aggregate_network_metrics(
@@ -608,3 +648,104 @@ def test_select_confirmatory_methods_rejects_duplicates():
                 "second",
             ],
         )
+
+
+def test_analyze_confirmatory_metric():
+    (
+        network_metrics,
+        friedman,
+        mean_ranks,
+        pairwise,
+    ) = analyze_confirmatory_metric(
+        build_fold_metrics(),
+        [
+            "first",
+            "second",
+            "third",
+        ],
+        "average_precision",
+    )
+
+    assert len(
+        network_metrics
+    ) == 12
+
+    assert friedman.loc[
+        0,
+        "reject_null",
+    ]
+
+    assert friedman.loc[
+        0,
+        "p_value",
+    ] < 0.05
+
+    assert mean_ranks[
+        "method_id"
+    ].to_list() == [
+        "first",
+        "second",
+        "third",
+    ]
+
+    assert len(
+        pairwise
+    ) == 3
+
+    assert set(
+        pairwise[
+            "metric"
+        ]
+    ) == {
+        "average_precision",
+    }
+
+
+def test_analyze_confirmatory_metric_skips_post_hoc():
+    fold_metrics = (
+        build_fold_metrics()
+    )
+
+    fold_metrics[
+        "average_precision"
+    ] = 0.5
+
+    (
+        _,
+        friedman,
+        mean_ranks,
+        pairwise,
+    ) = analyze_confirmatory_metric(
+        fold_metrics,
+        [
+            "first",
+            "second",
+            "third",
+        ],
+        "average_precision",
+    )
+
+    assert friedman.loc[
+        0,
+        "statistic",
+    ] == 0.0
+
+    assert friedman.loc[
+        0,
+        "p_value",
+    ] == 1.0
+
+    assert not friedman.loc[
+        0,
+        "reject_null",
+    ]
+
+    assert set(
+        mean_ranks[
+            "mean_rank"
+        ]
+    ) == {
+        2.0,
+    }
+
+    assert pairwise.empty

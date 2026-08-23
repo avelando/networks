@@ -460,9 +460,75 @@ def build_method_metric_matrix(
     return matrix
 
 
+def mean_method_ranks(
+    method_matrix: pd.DataFrame,
+) -> pd.DataFrame:
+    ranks = (
+        method_matrix.rank(
+            axis=1,
+            ascending=False,
+            method="average",
+        )
+    )
+
+    return (
+        ranks
+        .mean(
+            axis=0
+        )
+        .rename(
+            "mean_rank"
+        )
+        .reset_index()
+        .rename(
+            columns={
+                "method_id":
+                    "method_id",
+                "index":
+                    "method_id",
+            }
+        )
+        .sort_values(
+            [
+                "mean_rank",
+                "method_id",
+            ]
+        )
+        .reset_index(
+            drop=True
+        )
+    )
+
+
 def friedman_method_test(
     method_matrix: pd.DataFrame,
 ) -> dict[str, float | int]:
+    values = method_matrix.to_numpy(
+        dtype=float
+    )
+
+    if np.all(
+        np.ptp(
+            values,
+            axis=1,
+        )
+        == 0.0
+    ):
+        return {
+            "network_count":
+                int(
+                    method_matrix.shape[0]
+                ),
+            "method_count":
+                int(
+                    method_matrix.shape[1]
+                ),
+            "statistic":
+                0.0,
+            "p_value":
+                1.0,
+        }
+
     samples = [
         method_matrix[
             method_id
@@ -681,3 +747,115 @@ def pairwise_wilcoxon_holm(
     ] = rejected
 
     return comparisons
+
+
+def analyze_confirmatory_metric(
+    fold_metrics: pd.DataFrame,
+    method_ids: list[str],
+    metric: str,
+    alpha: float = 0.05,
+) -> tuple[
+    pd.DataFrame,
+    pd.DataFrame,
+    pd.DataFrame,
+    pd.DataFrame,
+]:
+    selected_fold_metrics = (
+        select_confirmatory_methods(
+            fold_metrics,
+            method_ids,
+        )
+    )
+
+    network_metrics = (
+        aggregate_network_metrics(
+            selected_fold_metrics,
+            metric,
+        )
+    )
+
+    method_matrix = (
+        build_method_metric_matrix(
+            network_metrics,
+            metric,
+        )
+    )
+
+    friedman_result = (
+        friedman_method_test(
+            method_matrix
+        )
+    )
+
+    friedman = pd.DataFrame(
+        [
+            {
+                "metric":
+                    metric,
+                "alpha":
+                    alpha,
+                **friedman_result,
+                "reject_null":
+                    friedman_result[
+                        "p_value"
+                    ]
+                    < alpha,
+            }
+        ]
+    )
+
+    mean_ranks = (
+        mean_method_ranks(
+            method_matrix
+        )
+    )
+
+    mean_ranks.insert(
+        0,
+        "metric",
+        metric,
+    )
+
+    if bool(
+        friedman.loc[
+            0,
+            "reject_null",
+        ]
+    ):
+        pairwise = (
+            pairwise_wilcoxon_holm(
+                method_matrix,
+                alpha=alpha,
+            )
+        )
+
+        pairwise.insert(
+            0,
+            "metric",
+            metric,
+        )
+    else:
+        pairwise = pd.DataFrame(
+            columns=[
+                "metric",
+                "first_method",
+                "second_method",
+                "network_count",
+                "statistic",
+                "p_value",
+                "median_difference",
+                "rank_biserial",
+                "first_wins",
+                "ties",
+                "second_wins",
+                "adjusted_p_value",
+                "reject_null",
+            ]
+        )
+
+    return (
+        network_metrics,
+        friedman,
+        mean_ranks,
+        pairwise,
+    )
