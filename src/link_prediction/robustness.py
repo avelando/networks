@@ -49,6 +49,13 @@ from link_prediction.sampling import (
     derive_seed,
     sample_non_edges,
 )
+from contextlib import (
+    nullcontext,
+)
+
+from threadpoolctl import (
+    threadpool_limits,
+)
 
 METRIC_COLUMNS = (
     "average_precision",
@@ -791,6 +798,7 @@ def evaluate_robustness_fold(
     benchmark_name: str,
     network_id: str,
     fold_number: int,
+    native_threads: int | None = 1,
 ) -> pd.DataFrame:
     experiment_config = (
         load_experiment_config()
@@ -1082,14 +1090,6 @@ def run_negative_sampling_robustness(
         load_methods_config()
     )
 
-    random_seed = int(
-        experiment_config[
-            "experiment"
-        ][
-            "random_seed"
-        ]
-    )
-
     n_folds = int(
         experiment_config[
             "experiment"
@@ -1117,10 +1117,6 @@ def run_negative_sampling_robustness(
             ],
         primary_ratio=
             primary_ratio,
-    )
-
-    maximum_ratio = max(
-        ratios
     )
 
     benchmark = (
@@ -1337,11 +1333,17 @@ def run_negative_sampling_robustness(
             )
 
 
-    worker_count = (
-        resolve_process_count(
-            max_workers
+    if pending_tasks:
+        worker_count = min(
+            resolve_process_count(
+                max_workers
+            ),
+            len(
+                pending_tasks
+            ),
         )
-    )
+    else:
+        worker_count = 1
 
     print(
         "Robustness execution:"
