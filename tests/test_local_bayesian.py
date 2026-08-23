@@ -47,7 +47,7 @@ def test_lnb_roles():
     )
 
 
-def test_lnb_ra_score():
+def test_lnb_scores():
     graph = build_lnb_test_graph()
 
     candidates = pd.DataFrame(
@@ -84,27 +84,42 @@ def test_lnb_ra_score():
         - 1
     )
 
-    expected = (
-        math.log(
-            prior_odds
-            * (1 / 7)
-        )
-        / 3
+    evidence = math.log(
+        prior_odds
+        * (1 / 7)
+    )
+
+    assert scores.loc[
+        0,
+        "lnb_cn",
+    ] == pytest.approx(
+        evidence
+    )
+
+    assert scores.loc[
+        0,
+        "lnb_aa",
+    ] == pytest.approx(
+        evidence
+        / math.log(3)
     )
 
     assert scores.loc[
         0,
         "lnb_ra",
     ] == pytest.approx(
-        expected
+        evidence / 3
     )
 
-    assert scores.loc[
-        1,
-        "lnb_ra",
-    ] == pytest.approx(
-        0.0
-    )
+    for method_id in (
+        LOCAL_BAYESIAN_METHODS
+    ):
+        assert scores.loc[
+            1,
+            method_id,
+        ] == pytest.approx(
+            0.0
+        )
 
 
 def test_lnb_role_uses_martinez_smoothing():
@@ -128,7 +143,7 @@ def test_lnb_role_uses_martinez_smoothing():
     )
 
 
-def test_lnb_ra_rejects_missing_node():
+def test_local_bayesian_rejects_missing_node():
     graph = build_lnb_test_graph()
 
     candidates = pd.DataFrame(

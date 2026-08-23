@@ -79,6 +79,18 @@ methods:
     enabled: true
     parameters: {}
 
+  lnb_cn:
+    name: LNB-CN
+    family: local_bayesian
+    enabled: true
+    parameters: {}
+
+  lnb_aa:
+    name: LNB-AA
+    family: local_bayesian
+    enabled: true
+    parameters: {}
+
   lnb_ra:
     name: LNB-RA
     family: local_bayesian

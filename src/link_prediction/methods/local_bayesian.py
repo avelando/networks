@@ -4,6 +4,8 @@ import networkx as nx
 import pandas as pd
 
 LOCAL_BAYESIAN_METHODS = (
+    "lnb_cn",
+    "lnb_aa",
     "lnb_ra",
 )
 
@@ -96,7 +98,7 @@ def score_local_bayesian_candidates(
         or edge_count == 0
     ):
         raise ValueError(
-            "LNB-RA requires a graph "
+            "Local Bayesian methods require a graph "
             "with at least two nodes "
             "and one edge."
         )
@@ -132,7 +134,7 @@ def score_local_bayesian_candidates(
         prior_odds
     )
 
-    scores: list[float] = []
+    rows = []
 
     for (
         source,
@@ -161,24 +163,51 @@ def score_local_bayesian_candidates(
             & neighbors[target]
         )
 
-        score = sum(
-            (
+        evidence = {
+            node: (
                 log_prior_odds
                 + math.log(
                     roles[node]
                 )
             )
+            for node
+            in common_neighbors
+        }
+
+        lnb_cn = sum(
+            evidence[node]
+            for node
+            in common_neighbors
+        )
+
+        lnb_aa = sum(
+            evidence[node]
+            / math.log(
+                degrees[node]
+            )
+            for node
+            in common_neighbors
+        )
+
+        lnb_ra = sum(
+            evidence[node]
             / degrees[node]
             for node
             in common_neighbors
         )
 
-        scores.append(
-            float(score)
+        rows.append(
+            {
+                "lnb_cn":
+                    float(lnb_cn),
+                "lnb_aa":
+                    float(lnb_aa),
+                "lnb_ra":
+                    float(lnb_ra),
+            }
         )
 
     return pd.DataFrame(
-        {
-            "lnb_ra": scores,
-        }
+        rows,
+        columns=LOCAL_BAYESIAN_METHODS,
     )

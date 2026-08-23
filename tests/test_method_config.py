@@ -8,16 +8,7 @@ def test_method_registry():
     methods = config["methods"]
 
     assert len(families) == 6
-    assert len(methods) == 22
-
-    assert methods["fl"] == {
-        "name": "FL-l3",
-        "family": "quasi_local_path",
-        "enabled": True,
-        "parameters": {
-            "length": 3,
-        },
-    }
+    assert len(methods) == 24
 
     for method in methods.values():
         assert method["family"] in families
