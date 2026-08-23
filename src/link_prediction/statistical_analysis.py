@@ -1,4 +1,6 @@
 from itertools import combinations
+from pathlib import Path
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -11,12 +13,268 @@ from statsmodels.stats.multitest import (
     multipletests,
 )
 
+from link_prediction.config import (
+    SUMMARY_RESULTS_DIR,
+    load_methods_config,
+)
+
 NETWORK_METRIC_COLUMNS = (
     "benchmark",
     "network_id",
     "family",
     "method_id",
 )
+
+FOLD_RESULT_COLUMNS = (
+    "benchmark",
+    "network_id",
+    "fold",
+    "family",
+    "method_id",
+)
+
+
+def load_benchmark_fold_metrics(
+    benchmark_name: str = "revision",
+    summary_results_dir: Path = (
+        SUMMARY_RESULTS_DIR
+    ),
+    methods_config: (
+        dict[str, Any] | None
+    ) = None,
+) -> pd.DataFrame:
+    if methods_config is None:
+        methods_config = (
+            load_methods_config()
+        )
+
+    enabled_methods = {
+        method_id:
+            method_config
+        for method_id, method_config
+        in methods_config[
+            "methods"
+        ].items()
+        if method_config.get(
+            "enabled",
+            True,
+        )
+    }
+
+    family_ids = sorted(
+        {
+            method_config[
+                "family"
+            ]
+            for method_config
+            in enabled_methods.values()
+        }
+    )
+
+    frames = []
+
+    for family_id in family_ids:
+        path = (
+            summary_results_dir
+            / (
+                f"{benchmark_name}_"
+                f"{family_id}_"
+                "fold_metrics.csv"
+            )
+        )
+
+        if not path.exists():
+            raise FileNotFoundError(
+                "Family fold metrics not found: "
+                f"{path}"
+            )
+
+        frame = pd.read_csv(
+            path
+        )
+
+        missing_columns = (
+            set(
+                FOLD_RESULT_COLUMNS
+            )
+            - set(frame.columns)
+        )
+
+        if missing_columns:
+            raise ValueError(
+                "Family fold metrics are "
+                "missing columns: "
+                f"{sorted(missing_columns)}"
+            )
+
+        observed_benchmarks = set(
+            frame[
+                "benchmark"
+            ]
+        )
+
+        if observed_benchmarks != {
+            benchmark_name
+        }:
+            raise ValueError(
+                "Unexpected benchmark values "
+                f"in {path.name}: "
+                f"{sorted(observed_benchmarks)}"
+            )
+
+        frames.append(
+            frame
+        )
+
+    fold_metrics = pd.concat(
+        frames,
+        ignore_index=True,
+    )
+
+    expected_method_ids = set(
+        enabled_methods
+    )
+
+    observed_method_ids = set(
+        fold_metrics[
+            "method_id"
+        ]
+    )
+
+    missing_method_ids = (
+        expected_method_ids
+        - observed_method_ids
+    )
+
+    unexpected_method_ids = (
+        observed_method_ids
+        - expected_method_ids
+    )
+
+    if (
+        missing_method_ids
+        or unexpected_method_ids
+    ):
+        raise ValueError(
+            "Fold metrics do not match "
+            "the enabled method registry. "
+            f"Missing: {sorted(missing_method_ids)}. "
+            "Unexpected: "
+            f"{sorted(unexpected_method_ids)}."
+        )
+
+    expected_families = {
+        method_id:
+            method_config[
+                "family"
+            ]
+        for method_id, method_config
+        in enabled_methods.items()
+    }
+
+    invalid_families = (
+        fold_metrics[
+            fold_metrics.apply(
+                lambda row: (
+                    expected_families[
+                        row[
+                            "method_id"
+                        ]
+                    ]
+                    != row[
+                        "family"
+                    ]
+                ),
+                axis=1,
+            )
+        ]
+    )
+
+    if not invalid_families.empty:
+        raise ValueError(
+            "Fold metrics contain methods "
+            "assigned to incorrect families."
+        )
+
+    duplicated = (
+        fold_metrics.duplicated(
+            subset=list(
+                FOLD_RESULT_COLUMNS
+            ),
+            keep=False,
+        )
+    )
+
+    if duplicated.any():
+        raise ValueError(
+            "Fold metrics contain duplicated "
+            "method-network-fold rows."
+        )
+
+    reference_method = sorted(
+        expected_method_ids
+    )[0]
+
+    reference_blocks = set(
+        fold_metrics[
+            fold_metrics[
+                "method_id"
+            ]
+            == reference_method
+        ][
+            [
+                "benchmark",
+                "network_id",
+                "fold",
+            ]
+        ].itertuples(
+            index=False,
+            name=None,
+        )
+    )
+
+    for method_id in sorted(
+        expected_method_ids
+    ):
+        method_blocks = set(
+            fold_metrics[
+                fold_metrics[
+                    "method_id"
+                ]
+                == method_id
+            ][
+                [
+                    "benchmark",
+                    "network_id",
+                    "fold",
+                ]
+            ].itertuples(
+                index=False,
+                name=None,
+            )
+        )
+
+        if (
+            method_blocks
+            != reference_blocks
+        ):
+            raise ValueError(
+                "Fold metrics contain "
+                "incomplete method blocks: "
+                f"{method_id}"
+            )
+
+    return (
+        fold_metrics
+        .sort_values(
+            list(
+                FOLD_RESULT_COLUMNS
+            )
+        )
+        .reset_index(
+            drop=True
+        )
+    )
 
 
 def aggregate_network_metrics(

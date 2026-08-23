@@ -5,6 +5,7 @@ from link_prediction.statistical_analysis import (
     aggregate_network_metrics,
     build_method_metric_matrix,
     friedman_method_test,
+    load_benchmark_fold_metrics,
     paired_rank_biserial,
     pairwise_wilcoxon_holm,
 )
@@ -65,6 +66,156 @@ def build_fold_metrics() -> pd.DataFrame:
     return pd.DataFrame(
         rows
     )
+
+
+def build_methods_config() -> dict:
+    return {
+        "methods": {
+            "first": {
+                "family":
+                    "first_family",
+                "enabled":
+                    True,
+            },
+            "second": {
+                "family":
+                    "second_family",
+                "enabled":
+                    True,
+            },
+            "third": {
+                "family":
+                    "second_family",
+                "enabled":
+                    True,
+            },
+        }
+    }
+
+
+def write_family_metrics(
+    directory,
+) -> None:
+    fold_metrics = (
+        build_fold_metrics()
+    )
+
+    family_mapping = {
+        "first":
+            "first_family",
+        "second":
+            "second_family",
+        "third":
+            "second_family",
+    }
+
+    fold_metrics[
+        "family"
+    ] = (
+        fold_metrics[
+            "method_id"
+        ].map(
+            family_mapping
+        )
+    )
+
+    for family_id in (
+        "first_family",
+        "second_family",
+    ):
+        family_metrics = (
+            fold_metrics[
+                fold_metrics[
+                    "family"
+                ]
+                == family_id
+            ]
+        )
+
+        family_metrics.to_csv(
+            directory
+            / (
+                "revision_"
+                f"{family_id}_"
+                "fold_metrics.csv"
+            ),
+            index=False,
+        )
+
+
+def test_load_benchmark_fold_metrics(
+    tmp_path,
+):
+    write_family_metrics(
+        tmp_path
+    )
+
+    fold_metrics = (
+        load_benchmark_fold_metrics(
+            summary_results_dir=
+                tmp_path,
+            methods_config=
+                build_methods_config(),
+        )
+    )
+
+    assert set(
+        fold_metrics[
+            "method_id"
+        ]
+    ) == {
+        "first",
+        "second",
+        "third",
+    }
+
+    assert len(
+        fold_metrics
+    ) == 24
+
+
+def test_load_benchmark_fold_metrics_rejects_missing_method(
+    tmp_path,
+):
+    write_family_metrics(
+        tmp_path
+    )
+
+    path = (
+        tmp_path
+        / (
+            "revision_"
+            "second_family_"
+            "fold_metrics.csv"
+        )
+    )
+
+    metrics = pd.read_csv(
+        path
+    )
+
+    metrics = metrics[
+        metrics[
+            "method_id"
+        ]
+        != "third"
+    ]
+
+    metrics.to_csv(
+        path,
+        index=False,
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="enabled method registry",
+    ):
+        load_benchmark_fold_metrics(
+            summary_results_dir=
+                tmp_path,
+            methods_config=
+                build_methods_config(),
+        )
 
 
 def test_aggregate_network_metrics():
@@ -296,3 +447,63 @@ def test_paired_rank_biserial():
     assert effect == pytest.approx(
         4.0 / 6.0
     )
+
+
+def test_load_benchmark_fold_metrics_rejects_incomplete_blocks(
+    tmp_path,
+):
+    write_family_metrics(
+        tmp_path
+    )
+
+    path = (
+        tmp_path
+        / (
+            "revision_"
+            "second_family_"
+            "fold_metrics.csv"
+        )
+    )
+
+    metrics = pd.read_csv(
+        path
+    )
+
+    metrics = metrics[
+        ~(
+            (
+                metrics[
+                    "method_id"
+                ]
+                == "third"
+            )
+            & (
+                metrics[
+                    "network_id"
+                ]
+                == "network_4"
+            )
+            & (
+                metrics[
+                    "fold"
+                ]
+                == 2
+            )
+        )
+    ]
+
+    metrics.to_csv(
+        path,
+        index=False,
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="incomplete method blocks",
+    ):
+        load_benchmark_fold_metrics(
+            summary_results_dir=
+                tmp_path,
+            methods_config=
+                build_methods_config(),
+        )
