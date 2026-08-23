@@ -331,6 +331,8 @@ def score_enhanced_local_candidates(
                     float(ia2),
                 "car_ra":
                     float(car_ra),
+                "fsw":
+                    float(fsw),
             }
         )
 

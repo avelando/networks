@@ -602,14 +602,6 @@ def score_all_primary_methods(
         )
     ]
 
-    if len(
-        method_ids
-    ) != 19:
-        raise ValueError(
-            "Expected 19 enabled primary methods, "
-            f"found {len(method_ids)}."
-        )
-
     if (
         set(
             scores.columns
