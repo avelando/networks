@@ -241,6 +241,16 @@ def summarize_fold_metrics(
         "recall",
         "f1",
         "ndcg",
+        "distinct_score_count",
+        "tie_group_count",
+        "tied_candidate_count",
+        "tied_candidate_ratio",
+        "largest_tie_group",
+        "cutoff_tie_size",
+        "cutoff_tie_positive_count",
+        "cutoff_tie_negative_count",
+        "cutoff_slots_in_tie",
+        "cutoff_tie_crosses_boundary",
     ]
 
     grouped = (
