@@ -25,6 +25,14 @@ def test_quasi_local_primary_parameters():
         "length": 3,
     }
 
+    assert methods[
+        "ora_cni"
+    ][
+        "parameters"
+    ] == {
+        "beta": 0.001,
+    }
+
     assert methods["fl"]["parameters"] == {
         "length": 3,
     }

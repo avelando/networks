@@ -75,8 +75,17 @@ def sensitivity_method_name(
     parameter_value: float,
 ) -> str:
     if parameter_name == "beta":
+        method_name = (
+            method_id
+            .upper()
+            .replace(
+                "_",
+                "-",
+            )
+        )
+
         return (
-            f"{method_id.upper()}-beta-"
+            f"{method_name}-beta-"
             f"{float(parameter_value):g}"
         )
 
@@ -105,39 +114,47 @@ def build_parameter_sensitivity_plan(
 
     rows = []
 
-    lpi_config = methods["lpi"]
-
-    for beta in sensitivity_values(
-        lpi_config,
-        "beta",
+    for method_id in (
+        "lpi",
+        "ora_cni",
     ):
-        rows.append(
-            {
-                "family":
-                    lpi_config["family"],
-                "method_id":
-                    "lpi",
-                "method":
-                    sensitivity_method_name(
-                        method_id="lpi",
-                        parameter_name="beta",
-                        parameter_value=beta,
-                    ),
-                "parameter":
-                    "beta",
-                "parameter_value":
-                    beta,
-                "is_primary":
-                    beta
-                    == lpi_config[
-                        "parameters"
-                    ][
-                        "beta"
-                    ],
-            }
-        )
+        method_config = methods[
+            method_id
+        ]
 
-        lit_config = methods["lit"]
+        for beta in sensitivity_values(
+            method_config,
+            "beta",
+        ):
+            rows.append(
+                {
+                    "family":
+                        method_config[
+                            "family"
+                        ],
+                    "method_id":
+                        method_id,
+                    "method":
+                        sensitivity_method_name(
+                            method_id=method_id,
+                            parameter_name="beta",
+                            parameter_value=beta,
+                        ),
+                    "parameter":
+                        "beta",
+                    "parameter_value":
+                        beta,
+                    "is_primary":
+                        beta
+                        == method_config[
+                            "parameters"
+                        ][
+                            "beta"
+                        ],
+                }
+            )
+
+    lit_config = methods["lit"]
 
     for iterations in sensitivity_values(
         lit_config,
@@ -373,6 +390,18 @@ def evaluate_parameter_sensitivity_fold(
         ]
     )
 
+    ora_cni_config = methods[
+        "ora_cni"
+    ]
+
+    ora_cni_beta_values = (
+        sensitivity_values(
+            ora_cni_config,
+            "beta",
+        )
+    )
+
+
     lit_config = methods["lit"]
 
     lit_iteration_values = (
@@ -471,6 +500,81 @@ def evaluate_parameter_sensitivity_fold(
                     "is_primary":
                         beta
                         == lpi_config[
+                            "parameters"
+                        ][
+                            "beta"
+                        ],
+                    "configuration_scoring_seconds":
+                        scoring_seconds,
+                    **metrics,
+                }
+            )
+        for beta in (
+            ora_cni_beta_values
+        ):
+            start = perf_counter()
+
+            score_table = (
+                score_quasi_local_path_candidates(
+                    graph=graph,
+                    candidates=candidates,
+                    ora_beta=float(beta),
+                    length=lpi_length,
+                )
+            )
+
+            scoring_seconds = (
+                perf_counter()
+                - start
+            )
+
+            metrics = (
+                evaluate_parameter_scores(
+                    candidates,
+                    score_table[
+                        "ora_cni"
+                    ],
+                )
+            )
+
+            rows.append(
+                {
+                    "benchmark":
+                        benchmark_name,
+                    "network_id":
+                        network_id,
+                    "network":
+                        network_config[
+                            "name"
+                        ],
+                    "domain":
+                        network_config[
+                            "domain"
+                        ],
+                    "fold":
+                        fold_number,
+                    "family":
+                        ora_cni_config[
+                            "family"
+                        ],
+                    "method_id":
+                        "ora_cni",
+                    "method":
+                        sensitivity_method_name(
+                            method_id=
+                                "ora_cni",
+                            parameter_name=
+                                "beta",
+                            parameter_value=
+                                beta,
+                        ),
+                    "parameter":
+                        "beta",
+                    "parameter_value":
+                        beta,
+                    "is_primary":
+                        beta
+                        == ora_cni_config[
                             "parameters"
                         ][
                             "beta"

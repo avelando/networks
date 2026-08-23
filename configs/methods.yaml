@@ -170,6 +170,11 @@ methods:
     enabled: true
     parameters:
       beta: 0.001
+    sensitivity:
+      beta:
+        - 0.1
+        - 0.01
+        - 0.001
 
   fl:
     name: FL-l3

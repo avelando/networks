@@ -21,13 +21,14 @@ def test_parameter_sensitivity_plan():
         )
     )
 
-    assert len(plan) == 15
+    assert len(plan) == 18
 
     assert set(
         plan["method_id"]
     ) == {
         "lit",
         "lpi",
+        "ora_cni",
         "lrw",
         "srw",
         "pfp",
@@ -40,6 +41,21 @@ def test_parameter_sensitivity_plan():
 
     assert set(
         lpi["parameter_value"]
+    ) == {
+        0.1,
+        0.01,
+        0.001,
+    }
+
+    ora_cni = plan[
+        plan["method_id"]
+        == "ora_cni"
+    ]
+
+    assert set(
+        ora_cni[
+            "parameter_value"
+        ]
     ) == {
         0.1,
         0.01,
@@ -81,7 +97,7 @@ def test_parameter_sensitivity_plan():
         plan[
             "is_primary"
         ].sum()
-    ) == 5
+    ) == 6
 
 
 def test_parameter_sensitivity_names():
@@ -102,6 +118,24 @@ def test_parameter_sensitivity_names():
         "beta",
         0.1,
     ) == "LPI-beta-0.1"
+
+    assert sensitivity_method_name(
+        "ora_cni",
+        "beta",
+        0.001,
+    ) == "ORA-CNI-beta-0.001"
+
+    assert sensitivity_method_name(
+        "ora_cni",
+        "beta",
+        0.01,
+    ) == "ORA-CNI-beta-0.01"
+
+    assert sensitivity_method_name(
+        "ora_cni",
+        "beta",
+        0.1,
+    ) == "ORA-CNI-beta-0.1"
 
     assert sensitivity_method_name(
         "lrw",
@@ -161,6 +195,21 @@ def test_parameter_sensitivity_plan_uses_configuration_specific_names():
         ("lpi", 0.001, "LPI-beta-0.001"),
         ("lpi", 0.01, "LPI-beta-0.01"),
         ("lpi", 0.1, "LPI-beta-0.1"),
+        (
+            "ora_cni",
+            0.001,
+            "ORA-CNI-beta-0.001",
+        ),
+        (
+            "ora_cni",
+            0.01,
+            "ORA-CNI-beta-0.01",
+        ),
+        (
+            "ora_cni",
+            0.1,
+            "ORA-CNI-beta-0.1",
+        ),
         ("lrw", 3, "LRW-l3"),
         ("lrw", 5, "LRW-l5"),
         ("lrw", 7, "LRW-l7"),
