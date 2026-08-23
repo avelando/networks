@@ -94,3 +94,35 @@ def test_parameter_sensitivity_names():
         "steps",
         3,
     ) == "PFP-l3"
+
+
+def test_parameter_sensitivity_plan_uses_configuration_specific_names():
+    plan = build_parameter_sensitivity_plan(
+        load_methods_config()
+    )
+
+    observed = set(
+        zip(
+            plan["method_id"],
+            plan["parameter_value"],
+            plan["method"],
+            strict=True,
+        )
+    )
+
+    expected = {
+        ("lpi", 0.001, "LPI-beta-0.001"),
+        ("lpi", 0.01, "LPI-beta-0.01"),
+        ("lpi", 0.1, "LPI-beta-0.1"),
+        ("lrw", 3, "LRW-l3"),
+        ("lrw", 5, "LRW-l5"),
+        ("lrw", 7, "LRW-l7"),
+        ("srw", 3, "SRW-l3"),
+        ("srw", 5, "SRW-l5"),
+        ("srw", 7, "SRW-l7"),
+        ("pfp", 3, "PFP-l3"),
+        ("pfp", 5, "PFP-l5"),
+        ("pfp", 7, "PFP-l7"),
+    }
+
+    assert observed == expected

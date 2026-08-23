@@ -144,9 +144,11 @@ def build_parameter_sensitivity_plan(
                     "method_id":
                         method_id,
                     "method":
-                        method_config[
-                            "name"
-                        ],
+                        sensitivity_method_name(
+                            method_id=method_id,
+                            parameter_name="steps",
+                            parameter_value=steps,
+                        ),
                     "parameter":
                         "steps",
                     "parameter_value":
@@ -454,9 +456,11 @@ def run_parameter_sensitivity(
                         "method_id":
                             "lpi",
                         "method":
-                            lpi_config[
-                                "name"
-                            ],
+                            sensitivity_method_name(
+                                method_id="lpi",
+                                parameter_name="beta",
+                                parameter_value=beta,
+                            ),
                         "parameter":
                             "beta",
                         "parameter_value":
@@ -532,9 +536,9 @@ def run_parameter_sensitivity(
                                 method_id,
                             "method":
                                 sensitivity_method_name(
-                                    method_id="lpi",
-                                    parameter_name="beta",
-                                    parameter_value=beta,
+                                    method_id=method_id,
+                                    parameter_name="steps",
+                                    parameter_value=steps,
                                 ),
                             "parameter":
                                 "steps",
