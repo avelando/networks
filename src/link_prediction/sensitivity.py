@@ -60,6 +60,29 @@ def sensitivity_values(
     return values
 
 
+def sensitivity_method_name(
+    method_id: str,
+    parameter_name: str,
+    parameter_value: float,
+) -> str:
+    if parameter_name == "beta":
+        return (
+            f"{method_id.upper()}-beta-"
+            f"{float(parameter_value):g}"
+        )
+
+    if parameter_name == "steps":
+        return (
+            f"{method_id.upper()}-l"
+            f"{int(parameter_value)}"
+        )
+
+    raise ValueError(
+        "Unsupported sensitivity parameter: "
+        f"{parameter_name}"
+    )
+
+
 def build_parameter_sensitivity_plan(
     methods_config: dict[str, Any],
 ) -> pd.DataFrame:
@@ -80,7 +103,11 @@ def build_parameter_sensitivity_plan(
                 "method_id":
                     "lpi",
                 "method":
-                    lpi_config["name"],
+                    sensitivity_method_name(
+                        method_id="lpi",
+                        parameter_name="beta",
+                        parameter_value=beta,
+                    ),
                 "parameter":
                     "beta",
                 "parameter_value":
@@ -504,9 +531,11 @@ def run_parameter_sensitivity(
                             "method_id":
                                 method_id,
                             "method":
-                                method_config[
-                                    "name"
-                                ],
+                                sensitivity_method_name(
+                                    method_id="lpi",
+                                    parameter_name="beta",
+                                    parameter_value=beta,
+                                ),
                             "parameter":
                                 "steps",
                             "parameter_value":

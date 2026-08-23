@@ -3,6 +3,7 @@ from link_prediction.config import (
 )
 from link_prediction.sensitivity import (
     build_parameter_sensitivity_plan,
+    sensitivity_method_name,
 )
 
 
@@ -55,3 +56,41 @@ def test_parameter_sensitivity_plan():
             "is_primary"
         ].sum()
     ) == 4
+
+
+def test_parameter_sensitivity_names():
+    assert sensitivity_method_name(
+        "lpi",
+        "beta",
+        0.001,
+    ) == "LPI-beta-0.001"
+
+    assert sensitivity_method_name(
+        "lpi",
+        "beta",
+        0.01,
+    ) == "LPI-beta-0.01"
+
+    assert sensitivity_method_name(
+        "lpi",
+        "beta",
+        0.1,
+    ) == "LPI-beta-0.1"
+
+    assert sensitivity_method_name(
+        "lrw",
+        "steps",
+        5,
+    ) == "LRW-l5"
+
+    assert sensitivity_method_name(
+        "srw",
+        "steps",
+        7,
+    ) == "SRW-l7"
+
+    assert sensitivity_method_name(
+        "pfp",
+        "steps",
+        3,
+    ) == "PFP-l3"
