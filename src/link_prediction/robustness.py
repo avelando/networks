@@ -246,11 +246,6 @@ def build_nested_robustness_candidates(
         additional_negatives
     )
 
-    all_negatives = [
-        *base_negatives,
-        *additional_negatives,
-    ]
-
     base_negative_ranks = {
         edge: rank
         for rank, edge
