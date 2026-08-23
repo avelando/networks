@@ -55,3 +55,28 @@ def test_experiment_configuration():
         ]
         == "non_interpolated_precision_recall"
     )
+
+    assert config[
+        "statistics"
+    ][
+        "alpha"
+    ] == 0.05
+
+    assert config[
+        "statistics"
+    ][
+        "metrics"
+    ] == [
+        "average_precision",
+        "roc_auc",
+    ]
+
+    assert config[
+        "statistics"
+    ][
+        "confirmatory_methods"
+    ] == [
+        "srw",
+        "lpi",
+        "pfp",
+    ]
