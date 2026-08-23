@@ -1099,7 +1099,7 @@ def evaluate_robustness_fold(
 
 
 def run_negative_sampling_robustness(
-    benchmark_name: str = "revision",
+    benchmark_name: str = "standard",
     resume: bool = True,
     max_workers: int | str | None = None,
 ) -> tuple[

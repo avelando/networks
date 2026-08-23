@@ -56,7 +56,7 @@ def test_run_complexity_analysis_writes_output(
 
     path = (
         tmp_path
-        / "revision_method_complexity.csv"
+        / "standard_method_complexity.csv"
     )
 
     assert path.exists()

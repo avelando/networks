@@ -1,34 +1,45 @@
 from collections import Counter
 
-from link_prediction.config import load_networks_config
+from link_prediction.config import (
+    load_networks_config,
+)
 
-BASELINE_NETWORKS = {
+EXPECTED_NETWORKS = {
     "ego_facebook",
+    "socfb_middlebury45",
     "ca_grqc",
     "ca_hepth",
     "email_eu_core",
-    "power_grid",
-}
-
-ADDITIONAL_NETWORKS = {
-    "socfb_middlebury45",
     "email_univ",
+    "power_grid",
     "power_1138_bus",
 }
 
 
-def test_revision_benchmark_is_balanced():
+def test_standard_benchmark_is_balanced():
     config = load_networks_config()
 
-    revision = config["benchmarks"]["revision"]
-    networks = config["networks"]
+    benchmark = config[
+        "benchmarks"
+    ][
+        "standard"
+    ]
 
-    assert len(revision) == 8
-    assert len(set(revision)) == 8
+    networks = config[
+        "networks"
+    ]
+
+    assert len(benchmark) == 8
+    assert len(set(benchmark)) == 8
 
     domains = Counter(
-        networks[network_id]["domain"]
-        for network_id in revision
+        networks[
+            network_id
+        ][
+            "domain"
+        ]
+        for network_id
+        in benchmark
     )
 
     assert domains == {
@@ -39,23 +50,42 @@ def test_revision_benchmark_is_balanced():
     }
 
 
-def test_revision_preserves_published_networks():
+def test_standard_benchmark_contains_expected_networks():
     config = load_networks_config()
 
-    revision = set(config["benchmarks"]["revision"])
+    benchmark = set(
+        config[
+            "benchmarks"
+        ][
+            "standard"
+        ]
+    )
 
-    assert BASELINE_NETWORKS <= revision
+    assert benchmark == (
+        EXPECTED_NETWORKS
+    )
 
-    for network_id in BASELINE_NETWORKS:
-        assert config["networks"][network_id]["role"] == "original"
 
-
-def test_revision_adds_only_selected_networks():
+def test_standard_networks_are_enabled():
     config = load_networks_config()
 
-    revision = set(config["benchmarks"]["revision"])
+    benchmark = config[
+        "benchmarks"
+    ][
+        "standard"
+    ]
 
-    assert revision - BASELINE_NETWORKS == ADDITIONAL_NETWORKS
+    networks = config[
+        "networks"
+    ]
 
-    for network_id in ADDITIONAL_NETWORKS:
-        assert config["networks"][network_id]["role"] == "additional"
+    assert all(
+        networks[
+            network_id
+        ].get(
+            "enabled",
+            True,
+        )
+        for network_id
+        in benchmark
+    )

@@ -249,7 +249,7 @@ def test_summarize_fold_metrics_includes_tie_diagnostics():
         metrics.insert(
             0,
             "benchmark",
-            "revision",
+            "standard",
         )
 
         fold_rows.append(

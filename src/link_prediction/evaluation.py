@@ -482,7 +482,7 @@ def evaluate_method_family_fold(
 def run_method_family_benchmark(
     family_id: str,
     scorer: Scorer,
-    benchmark_name: str = "revision",
+    benchmark_name: str = "standard",
     max_workers: int | str | None = None,
 ) -> tuple[
     pd.DataFrame,

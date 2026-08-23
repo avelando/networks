@@ -515,7 +515,7 @@ def build_network_folds_task(
 
 
 def prepare_benchmark(
-    benchmark_name: str = "revision",
+    benchmark_name: str = "standard",
     overwrite: bool = False,
     max_workers: int | str | None = None,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:

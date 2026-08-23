@@ -37,7 +37,7 @@ FOLD_RESULT_COLUMNS = (
 
 
 def load_benchmark_fold_metrics(
-    benchmark_name: str = "revision",
+    benchmark_name: str = "standard",
     summary_results_dir: Path = (
         SUMMARY_RESULTS_DIR
     ),
@@ -911,7 +911,7 @@ def run_confirmatory_analysis(
         "roc_auc",
     ),
     alpha: float = 0.05,
-    benchmark_name: str = "revision",
+    benchmark_name: str = "standard",
     output_dir: Path = (
         SUMMARY_RESULTS_DIR
     ),

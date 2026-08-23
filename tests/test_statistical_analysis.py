@@ -53,7 +53,7 @@ def build_fold_metrics() -> pd.DataFrame:
                 rows.append(
                     {
                         "benchmark":
-                            "revision",
+                            "standard",
                         "network_id":
                             f"network_{network_index}",
                         "family":
@@ -161,7 +161,7 @@ def write_family_metrics(
         family_metrics.to_csv(
             directory
             / (
-                "revision_"
+                "standard_"
                 f"{family_id}_"
                 "fold_metrics.csv"
             ),
@@ -210,7 +210,7 @@ def test_load_benchmark_fold_metrics_rejects_missing_method(
     path = (
         tmp_path
         / (
-            "revision_"
+            "standard_"
             "second_family_"
             "fold_metrics.csv"
         )
@@ -596,7 +596,7 @@ def test_load_benchmark_fold_metrics_rejects_incomplete_blocks(
     path = (
         tmp_path
         / (
-            "revision_"
+            "standard_"
             "second_family_"
             "fold_metrics.csv"
         )
@@ -791,7 +791,7 @@ def test_run_confirmatory_analysis(
                 "average_precision",
             ),
             benchmark_name=
-                "revision",
+                "standard",
             output_dir=
                 tmp_path,
         )
@@ -850,7 +850,7 @@ def test_run_confirmatory_analysis(
         path = (
             tmp_path
             / (
-                "revision_"
+                "standard_"
                 "confirmatory_"
                 f"{output_name}.csv"
             )

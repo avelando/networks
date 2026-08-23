@@ -210,7 +210,7 @@ def aggregate_method_tie_diagnostics(
 
 def run_tie_analysis(
     fold_metrics: pd.DataFrame,
-    benchmark_name: str = "revision",
+    benchmark_name: str = "standard",
     output_dir: Path = (
         SUMMARY_RESULTS_DIR
     ),

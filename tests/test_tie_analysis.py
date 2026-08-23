@@ -22,7 +22,7 @@ def build_tie_fold_metrics() -> pd.DataFrame:
             rows.append(
                 {
                     "benchmark":
-                        "revision",
+                        "standard",
                     "network_id":
                         network_id,
                     "network":
@@ -164,12 +164,12 @@ def test_run_tie_analysis_writes_outputs(
 
     assert (
         tmp_path
-        / "revision_network_tie_diagnostics.csv"
+        / "standard_network_tie_diagnostics.csv"
     ).exists()
 
     assert (
         tmp_path
-        / "revision_method_tie_diagnostics.csv"
+        / "standard_method_tie_diagnostics.csv"
     ).exists()
 
     assert not list(

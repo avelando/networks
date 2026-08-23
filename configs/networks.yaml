@@ -1,5 +1,5 @@
 benchmarks:
-  revision:
+  standard:
     - ego_facebook
     - socfb_middlebury45
     - ca_grqc
@@ -13,7 +13,6 @@ networks:
   ego_facebook:
     name: ego-Facebook
     domain: social
-    role: original
     repository: SNAP
     description: Facebook social circles network
     enabled: true
@@ -33,7 +32,6 @@ networks:
   socfb_middlebury45:
     name: socfb-Middlebury45
     domain: social
-    role: additional
     repository: Network Data Repository
     description: Facebook university friendship network
     enabled: true
@@ -52,7 +50,6 @@ networks:
   ca_grqc:
     name: ca-GrQc
     domain: scientific_collaboration
-    role: original
     repository: SNAP
     description: General Relativity and Quantum Cosmology collaboration network
     enabled: true
@@ -72,7 +69,6 @@ networks:
   ca_hepth:
     name: ca-HepTh
     domain: scientific_collaboration
-    role: original
     repository: SNAP
     description: High Energy Physics Theory collaboration network
     enabled: true
@@ -92,7 +88,6 @@ networks:
   email_eu_core:
     name: email-Eu-core
     domain: communication
-    role: original
     repository: SNAP
     description: Email communication network from a European research institution
     enabled: true
@@ -112,7 +107,6 @@ networks:
   email_univ:
     name: email-univ
     domain: communication
-    role: additional
     repository: Network Data Repository
     description: University email communication network
     enabled: true
@@ -132,7 +126,6 @@ networks:
   power_grid:
     name: power-grid
     domain: infrastructure
-    role: original
     repository: Netzschleuder
     description: Western United States power grid
     enabled: true
@@ -154,7 +147,6 @@ networks:
   power_1138_bus:
     name: power-1138-bus
     domain: infrastructure
-    role: additional
     repository: Network Data Repository
     description: Power network represented by a 1138-bus system
     enabled: true

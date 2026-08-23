@@ -121,7 +121,7 @@ def run_complexity_analysis(
     write_statistical_csv(
         complexity_table,
         output_dir
-        / "revision_method_complexity.csv",
+        / "standard_method_complexity.csv",
     )
 
     return complexity_table

@@ -83,7 +83,6 @@ def prepare_network(
     profile.update(
         {
             "network_id": network_id,
-            "role": network_config["role"],
             "repository": network_config["repository"],
         }
     )
@@ -95,7 +94,6 @@ def prepare_network(
         "network_id": network_id,
         "network": network_config["name"],
         "domain": network_config["domain"],
-        "role": network_config["role"],
         "repository": network_config["repository"],
         "source_url": source["url"],
         "source_file": source["filename"],
@@ -132,7 +130,7 @@ def prepare_network_summary(
 
 
 def prepare_benchmark(
-    benchmark_name: str = "revision",
+    benchmark_name: str = "standard",
     overwrite: bool = False,
     max_workers: int | str | None = None,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:

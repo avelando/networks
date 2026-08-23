@@ -300,7 +300,7 @@ def aggregate_family_runtime(
 
 def run_runtime_analysis(
     fold_metrics: pd.DataFrame,
-    benchmark_name: str = "revision",
+    benchmark_name: str = "standard",
     output_dir: Path = (
         SUMMARY_RESULTS_DIR
     ),

@@ -27,7 +27,7 @@ def build_runtime_metrics() -> pd.DataFrame:
                 rows.append(
                     {
                         "benchmark":
-                            "revision",
+                            "standard",
                         "network_id":
                             network_id,
                         "network":
@@ -173,17 +173,17 @@ def test_run_runtime_analysis_writes_outputs(
 
     assert (
         tmp_path
-        / "revision_family_fold_runtime.csv"
+        / "standard_family_fold_runtime.csv"
     ).exists()
 
     assert (
         tmp_path
-        / "revision_family_runtime_by_network.csv"
+        / "standard_family_runtime_by_network.csv"
     ).exists()
 
     assert (
         tmp_path
-        / "revision_family_runtime_summary.csv"
+        / "standard_family_runtime_summary.csv"
     ).exists()
 
     assert not list(
