@@ -105,12 +105,114 @@ def ndcg_at_k(
     return dcg / idcg
 
 
+def tie_diagnostics(
+    ranked: pd.DataFrame,
+    cutoff: int,
+) -> dict[str, float | int | bool]:
+    score_counts = (
+        ranked.groupby(
+            "score",
+            sort=False,
+        )
+        .size()
+    )
+
+    tied_score_counts = score_counts[
+        score_counts > 1
+    ]
+
+    cutoff_score = float(
+        ranked.iloc[
+            cutoff - 1
+        ][
+            "score"
+        ]
+    )
+
+    cutoff_tie = ranked[
+        ranked[
+            "score"
+        ]
+        == cutoff_score
+    ]
+
+    cutoff_tie_positions = (
+        cutoff_tie.index.to_numpy(
+            dtype=int
+        )
+    )
+
+    cutoff_tie_start = int(
+        cutoff_tie_positions.min()
+    )
+
+    cutoff_tie_end = int(
+        cutoff_tie_positions.max()
+    )
+
+    cutoff_slots_in_tie = (
+        cutoff
+        - cutoff_tie_start
+    )
+
+    return {
+        "distinct_score_count":
+            len(score_counts),
+        "tie_group_count":
+            len(
+                    tied_score_counts
+                ),
+        "tied_candidate_count":
+            int(
+                tied_score_counts.sum()
+            ),
+        "tied_candidate_ratio":
+            float(
+                tied_score_counts.sum()
+                / len(ranked)
+            ),
+        "largest_tie_group":
+            int(
+                tied_score_counts.max()
+                if not tied_score_counts.empty
+                else 1
+            ),
+        "cutoff_score":
+            cutoff_score,
+        "cutoff_tie_size":
+            len(cutoff_tie),
+        "cutoff_tie_positive_count":
+            int(
+                cutoff_tie[
+                    "label"
+                ].sum()
+            ),
+        "cutoff_tie_negative_count":
+            int(
+                len(cutoff_tie)
+                - cutoff_tie[
+                    "label"
+                ].sum()
+            ),
+        "cutoff_slots_in_tie":
+            int(
+                cutoff_slots_in_tie
+            ),
+        "cutoff_tie_crosses_boundary":
+            bool(
+                cutoff_tie_start
+                < cutoff
+                <= cutoff_tie_end
+            ),
+    }
+
+
 def evaluate_ranking(
     labels: Sequence[int],
     scores: Sequence[float],
     candidate_ids: Sequence[int],
     cutoff: int | None = None,
-) -> dict[str, float | int]:
+) -> dict[str, float | int | bool]:
     ranked = rank_candidates(
         labels=labels,
         scores=scores,
@@ -162,6 +264,11 @@ def evaluate_ranking(
             "cutoff must be between 1 "
             "and the number of candidates."
         )
+
+    diagnostics = tie_diagnostics(
+        ranked=ranked,
+        cutoff=cutoff,
+    )
 
     top_labels = ranked_labels[
         :cutoff
@@ -229,6 +336,7 @@ def evaluate_ranking(
             negative_count,
         "candidate_count":
             len(
-                    ranked_labels
-                ),
+                ranked_labels
+            ),
+        **diagnostics,
     }
