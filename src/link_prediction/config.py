@@ -42,6 +42,123 @@ def load_methods_config() -> dict[str, Any]:
     return load_yaml_config("methods.yaml")
 
 
+def resolve_analysis_family_map(
+    methods_config: dict[str, Any],
+) -> dict[str, str]:
+    execution_families = set(
+        methods_config[
+            "families"
+        ]
+    )
+
+    analysis_families = (
+        methods_config[
+            "analysis_families"
+        ]
+    )
+
+    mapping = {}
+
+    for (
+        analysis_family,
+        analysis_config,
+    ) in analysis_families.items():
+        grouped_families = list(
+            analysis_config.get(
+                "execution_families",
+                [],
+            )
+        )
+
+        if not grouped_families:
+            raise ValueError(
+                "Analysis family has no "
+                "execution families: "
+                f"{analysis_family}"
+            )
+
+        for execution_family in (
+            grouped_families
+        ):
+            if (
+                execution_family
+                not in execution_families
+            ):
+                raise ValueError(
+                    "Analysis family references "
+                    "an unknown execution family: "
+                    f"{execution_family}"
+                )
+
+            if execution_family in mapping:
+                raise ValueError(
+                    "Execution family belongs to "
+                    "multiple analysis families: "
+                    f"{execution_family}"
+                )
+
+            mapping[
+                execution_family
+            ] = analysis_family
+
+    missing_families = (
+        execution_families
+        - set(mapping)
+    )
+
+    if missing_families:
+        raise ValueError(
+            "Execution families are missing "
+            "from analysis families: "
+            f"{sorted(missing_families)}"
+        )
+
+    enabled_methods = [
+        method_config
+        for method_config
+        in methods_config[
+            "methods"
+        ].values()
+        if method_config.get(
+            "enabled",
+            True,
+        )
+    ]
+
+    analysis_family_sizes = {
+        analysis_family: sum(
+            mapping[
+                method_config[
+                    "family"
+                ]
+            ]
+            == analysis_family
+            for method_config
+            in enabled_methods
+        )
+        for analysis_family
+        in analysis_families
+    }
+
+    singleton_families = sorted(
+        analysis_family
+        for (
+            analysis_family,
+            method_count,
+        ) in analysis_family_sizes.items()
+        if method_count < 2
+    )
+
+    if singleton_families:
+        raise ValueError(
+            "Analysis families require at "
+            "least two enabled methods: "
+            f"{singleton_families}"
+        )
+
+    return mapping
+
+
 def ensure_project_directories() -> None:
     directories = [
         RAW_DATA_DIR,

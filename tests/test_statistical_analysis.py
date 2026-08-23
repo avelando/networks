@@ -58,6 +58,8 @@ def build_fold_metrics() -> pd.DataFrame:
                             f"network_{network_index}",
                         "family":
                             "test_family",
+                        "analysis_family":
+                            "combined_family",
                         "method_id":
                             method_id,
                         "fold":
@@ -74,6 +76,26 @@ def build_fold_metrics() -> pd.DataFrame:
 
 def build_methods_config() -> dict:
     return {
+        "families": {
+            "first_family": {
+                "name":
+                    "First family",
+            },
+            "second_family": {
+                "name":
+                    "Second family",
+            },
+        },
+        "analysis_families": {
+            "combined_family": {
+                "name":
+                    "Combined family",
+                "execution_families": [
+                    "first_family",
+                    "second_family",
+                ],
+            },
+        },
         "methods": {
             "first": {
                 "family":
@@ -312,6 +334,7 @@ def test_aggregate_network_metrics():
         "benchmark",
         "network_id",
         "family",
+        "analysis_family",
         "method_id",
         "average_precision",
     }

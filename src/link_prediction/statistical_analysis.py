@@ -16,12 +16,14 @@ from statsmodels.stats.multitest import (
 from link_prediction.config import (
     SUMMARY_RESULTS_DIR,
     load_methods_config,
+    resolve_analysis_family_map,
 )
 
 NETWORK_METRIC_COLUMNS = (
     "benchmark",
     "network_id",
     "family",
+    "analysis_family",
     "method_id",
 )
 
@@ -195,6 +197,20 @@ def load_benchmark_fold_metrics(
             "Fold metrics contain methods "
             "assigned to incorrect families."
         )
+
+    analysis_family_map = (
+        resolve_analysis_family_map(
+            methods_config
+        )
+    )
+
+    fold_metrics[
+        "analysis_family"
+    ] = fold_metrics[
+        "family"
+    ].map(
+        analysis_family_map
+    )
 
     duplicated = (
         fold_metrics.duplicated(

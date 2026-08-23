@@ -18,6 +18,34 @@ families:
     name: Walk-based quasi-local
 
 
+analysis_families:
+  standard_local:
+    name: Standard local
+    execution_families:
+      - local_similarity
+      - degree_based
+
+  local_bayesian:
+    name: Local Bayesian
+    execution_families:
+      - local_bayesian
+
+  enhanced_local:
+    name: Enhanced local
+    execution_families:
+      - enhanced_local
+
+  quasi_local_path:
+    name: Path-based quasi-local
+    execution_families:
+      - quasi_local_path
+
+  quasi_local_walk:
+    name: Walk-based quasi-local
+    execution_families:
+      - quasi_local_walk
+
+
 methods:
   cn:
     name: CN
