@@ -401,7 +401,6 @@ def evaluate_parameter_sensitivity_fold(
         )
     )
 
-
     lit_config = methods["lit"]
 
     lit_iteration_values = (
