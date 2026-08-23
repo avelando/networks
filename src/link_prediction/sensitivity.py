@@ -16,6 +16,9 @@ from link_prediction.evaluation import load_fold_data
 from link_prediction.execution import (
     run_process_tasks,
 )
+from link_prediction.methods.enhanced_local import (
+    local_interacting_scores,
+)
 from link_prediction.methods.quasi_local_paths import (
     score_quasi_local_path_candidates,
 )
@@ -83,6 +86,12 @@ def sensitivity_method_name(
             f"{int(parameter_value)}"
         )
 
+    if parameter_name == "iterations":
+        return (
+            f"{method_id.upper()}-i"
+            f"{int(parameter_value)}"
+        )
+
     raise ValueError(
         "Unsupported sensitivity parameter: "
         f"{parameter_name}"
@@ -124,6 +133,40 @@ def build_parameter_sensitivity_plan(
                         "parameters"
                     ][
                         "beta"
+                    ],
+            }
+        )
+
+        lit_config = methods["lit"]
+
+    for iterations in sensitivity_values(
+        lit_config,
+        "iterations",
+    ):
+        rows.append(
+            {
+                "family":
+                    lit_config["family"],
+                "method_id":
+                    "lit",
+                "method":
+                    sensitivity_method_name(
+                        method_id="lit",
+                        parameter_name=
+                            "iterations",
+                        parameter_value=
+                            iterations,
+                    ),
+                "parameter":
+                    "iterations",
+                "parameter_value":
+                    iterations,
+                "is_primary":
+                    iterations
+                    == lit_config[
+                        "parameters"
+                    ][
+                        "iterations"
                     ],
             }
         )
@@ -330,6 +373,15 @@ def evaluate_parameter_sensitivity_fold(
         ]
     )
 
+    lit_config = methods["lit"]
+
+    lit_iteration_values = (
+        sensitivity_values(
+            lit_config,
+            "iterations",
+        )
+    )
+
     walk_method_ids = (
         "lrw",
         "srw",
@@ -422,6 +474,80 @@ def evaluate_parameter_sensitivity_fold(
                             "parameters"
                         ][
                             "beta"
+                        ],
+                    "configuration_scoring_seconds":
+                        scoring_seconds,
+                    **metrics,
+                }
+            )
+            
+        for iterations in (
+            lit_iteration_values
+        ):
+            start = perf_counter()
+
+            scores = (
+                local_interacting_scores(
+                    graph=graph,
+                    candidates=candidates,
+                    iterations=int(
+                        iterations
+                    ),
+                )
+            )
+
+            scoring_seconds = (
+                perf_counter()
+                - start
+            )
+
+            metrics = (
+                evaluate_parameter_scores(
+                    candidates,
+                    scores,
+                )
+            )
+
+            rows.append(
+                {
+                    "benchmark":
+                        benchmark_name,
+                    "network_id":
+                        network_id,
+                    "network":
+                        network_config[
+                            "name"
+                        ],
+                    "domain":
+                        network_config[
+                            "domain"
+                        ],
+                    "fold":
+                        fold_number,
+                    "family":
+                        lit_config[
+                            "family"
+                        ],
+                    "method_id":
+                        "lit",
+                    "method":
+                        sensitivity_method_name(
+                            method_id="lit",
+                            parameter_name=
+                                "iterations",
+                            parameter_value=
+                                iterations,
+                        ),
+                    "parameter":
+                        "iterations",
+                    "parameter_value":
+                        iterations,
+                    "is_primary":
+                        iterations
+                        == lit_config[
+                            "parameters"
+                        ][
+                            "iterations"
                         ],
                     "configuration_scoring_seconds":
                         scoring_seconds,
