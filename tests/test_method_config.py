@@ -34,6 +34,14 @@ def test_quasi_local_primary_parameters():
         "length": 3,
     }
 
+    assert methods["fl"]["parameters"] == {
+        "length": 3,
+    }
+
+    assert methods["lit"]["parameters"] == {
+        "iterations": 2,
+    }
+
     assert methods["lrw"]["parameters"]["steps"] == 3
     assert methods["srw"]["parameters"]["steps"] == 3
     assert methods["pfp"]["parameters"]["steps"] == 3
