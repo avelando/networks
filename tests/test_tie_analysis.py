@@ -88,13 +88,14 @@ def test_aggregate_network_tie_diagnostics():
         ] == 2
     ).all()
 
-    assert (
-        summary[
-            "mean_tied_candidate_ratio"
-        ] == pytest.approx(
-            0.25
-        )
-    ).all()
+    assert summary[
+        "mean_tied_candidate_ratio"
+    ].tolist() == pytest.approx(
+        [
+            0.25,
+            0.25,
+        ]
+    )
 
     assert (
         summary[
@@ -102,13 +103,14 @@ def test_aggregate_network_tie_diagnostics():
         ] == 1
     ).all()
 
-    assert (
-        summary[
-            "cutoff_boundary_tie_rate"
-        ] == pytest.approx(
-            0.5
-        )
-    ).all()
+    assert summary[
+        "cutoff_boundary_tie_rate"
+    ].tolist() == pytest.approx(
+        [
+            0.5,
+            0.5,
+        ]
+    )
 
 
 def test_aggregate_method_tie_diagnostics():
