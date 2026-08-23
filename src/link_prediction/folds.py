@@ -514,10 +514,11 @@ def build_network_folds_task(
     )
 
 
-def build_benchmark_folds(
+def prepare_benchmark(
     benchmark_name: str = "revision",
-    max_workers: int | str | None = "auto",
-) -> pd.DataFrame:
+    overwrite: bool = False,
+    max_workers: int | str | None = None,
+) -> tuple[pd.DataFrame, pd.DataFrame]:
     experiment_config = (
         load_experiment_config()
     )

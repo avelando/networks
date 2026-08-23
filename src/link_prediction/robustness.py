@@ -1083,7 +1083,7 @@ def evaluate_robustness_fold(
 def run_negative_sampling_robustness(
     benchmark_name: str = "revision",
     resume: bool = True,
-    max_workers: int | str | None = "auto",
+    max_workers: int | str | None = None,
 ) -> tuple[
     pd.DataFrame,
     pd.DataFrame,
@@ -1316,18 +1316,6 @@ def run_negative_sampling_robustness(
     pending_tasks = []
 
     for network_id in enabled_network_ids:
-        network_config = (
-            network_definitions[
-                network_id
-            ]
-        )
-
-        if not network_config.get(
-            "enabled",
-            True,
-        ):
-            continue
-
         for fold_number in range(
             1,
             n_folds + 1,
@@ -1587,9 +1575,20 @@ def run_negative_sampling_robustness(
         index=False,
     )
 
+    final_checkpoint_path = (
+        checkpoint_path
+        .with_suffix(
+            ".csv.tmp"
+        )
+    )
+
     fold_metrics.to_csv(
-        checkpoint_path,
+        final_checkpoint_path,
         index=False,
+    )
+
+    final_checkpoint_path.replace(
+        checkpoint_path
     )
 
     return (

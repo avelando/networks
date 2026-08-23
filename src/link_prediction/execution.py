@@ -1,11 +1,11 @@
 import os
-from concurrent.futures import (
-    ProcessPoolExecutor,
-    as_completed,
-)
 from collections.abc import (
     Callable,
     Sequence,
+)
+from concurrent.futures import (
+    ProcessPoolExecutor,
+    as_completed,
 )
 from typing import Any
 
@@ -14,7 +14,6 @@ import psutil
 from link_prediction.config import (
     load_experiment_config,
 )
-
 
 GIB = 1024**3
 
@@ -189,7 +188,7 @@ def choose_process_count(
 
 
 def resolve_process_count(
-    max_workers: int | str | None = "auto",
+    max_workers: int | str | None = None,
     *,
     profile: str = "method_benchmark",
     task_count: int | None = None,
@@ -301,7 +300,7 @@ def run_process_tasks(
     worker: Callable[..., Any],
     tasks: Sequence[tuple[Any, ...]],
     *,
-    max_workers: int | str | None = "auto",
+    max_workers: int | str | None = None,
     profile: str = "method_benchmark",
     label: str = "tasks",
 ) -> list[Any]:

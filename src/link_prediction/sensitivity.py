@@ -514,7 +514,7 @@ def evaluate_parameter_sensitivity_fold(
 
 def run_parameter_sensitivity(
     benchmark_name: str = "revision",
-    max_workers: int | str | None = "auto",
+    max_workers: int | str | None = None,
 ) -> tuple[
     pd.DataFrame,
     pd.DataFrame,

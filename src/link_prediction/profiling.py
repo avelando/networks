@@ -134,7 +134,7 @@ def prepare_network_summary(
 def prepare_benchmark(
     benchmark_name: str = "revision",
     overwrite: bool = False,
-    max_workers: int | str | None = "auto",
+    max_workers: int | str | None = None,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     ensure_project_directories()
 

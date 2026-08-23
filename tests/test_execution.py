@@ -4,7 +4,12 @@ from link_prediction.execution import (
     GIB,
     choose_process_count,
     resolve_process_count,
+    run_process_tasks,
 )
+
+
+def _square(value: int) -> int:
+    return value * value
 
 
 def test_choose_process_count_from_cpu():
@@ -79,3 +84,43 @@ def test_invalid_process_count():
         resolve_process_count(
             0
         )
+
+
+def test_resolve_process_count_uses_config_when_unspecified(
+    monkeypatch,
+):
+    monkeypatch.setattr(
+        "link_prediction.execution.load_experiment_config",
+        lambda: {
+            "execution": {
+                "max_workers": 3,
+            }
+        },
+    )
+
+    assert (
+        resolve_process_count(
+            None,
+            task_count=10,
+        )
+        == 3
+    )
+
+
+def test_run_process_tasks_parallel_preserves_order():
+    results = run_process_tasks(
+        _square,
+        [
+            (3,),
+            (1,),
+            (2,),
+        ],
+        max_workers=2,
+        label="test",
+    )
+
+    assert results == [
+        9,
+        1,
+        4,
+    ]

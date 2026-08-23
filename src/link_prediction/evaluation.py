@@ -7,6 +7,9 @@ from time import perf_counter
 
 import networkx as nx
 import pandas as pd
+from threadpoolctl import (
+    threadpool_limits,
+)
 
 from link_prediction.config import (
     FOLDS_DATA_DIR,
@@ -16,15 +19,11 @@ from link_prediction.config import (
     load_methods_config,
     load_networks_config,
 )
-from link_prediction.metrics import (
-    evaluate_ranking,
-)
-from threadpoolctl import (
-    threadpool_limits,
-)
-
 from link_prediction.execution import (
     run_process_tasks,
+)
+from link_prediction.metrics import (
+    evaluate_ranking,
 )
 
 Scorer = Callable[
@@ -474,7 +473,7 @@ def run_method_family_benchmark(
     family_id: str,
     scorer: Scorer,
     benchmark_name: str = "revision",
-    max_workers: int | str | None = "auto",
+    max_workers: int | str | None = None,
 ) -> tuple[
     pd.DataFrame,
     pd.DataFrame,
@@ -550,8 +549,6 @@ def run_method_family_benchmark(
         parents=True,
         exist_ok=True,
     )
-
-    rows = []
 
     tasks = []
 
