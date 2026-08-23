@@ -22,7 +22,7 @@ standard,local_bayesian,local_bayesian,lnb_aa,LNB-AA,8,7120.625,213.125,5719.6,0
 standard,local_bayesian,local_bayesian,lnb_ra,LNB-RA,8,7120.625,213.125,5719.6,0.6502071384344842,4694.4,907.875,0.625
 standard,enhanced_local,enhanced_local,lit,LIT-i2,8,7733.075,60.7,4954.725,0.5954573813668365,4764.875,975.725,0.625
 standard,quasi_local_walk,quasi_local_walk,lrw,LRW-l3,8,9725.125,73.55,2975.5249999999996,0.48469258862301184,2564.7,779.15,0.5
-standard,enhanced_local,enhanced_local,ra_cni,RA-CNI,8,9690.2,82.175,3019.0750000000003,0.4931160186269294,2509.6749999999997,679.325,0.475
+standard,enhanced_local,enhanced_local,ra_cni,RA-CNI,8,9690.4,81.85,3018.5499999999997,0.4930291847167756,2509.6749999999997,679.325,0.475
 standard,quasi_local_walk,quasi_local_walk,srw,SRW-l3,8,9764.3,72.05,2934.85,0.4683442141140448,2506.2,677.25,0.475
-standard,quasi_local_path,quasi_local_path,ora_cni,ORA-CNI-beta-0.001,8,9754.775,69.875,2942.2,0.4631787498252558,2506.2,677.275,0.475
+standard,quasi_local_path,quasi_local_path,ora_cni,ORA-CNI-beta-0.001,8,9754.474999999999,70.225,2942.85,0.4632617198437679,2506.2,677.275,0.475
 standard,quasi_local_walk,quasi_local_walk,pfp,PFP-l3,8,9958.625,80.02499999999999,2748.5,0.4507255463123813,2506.2,677.25,0.475

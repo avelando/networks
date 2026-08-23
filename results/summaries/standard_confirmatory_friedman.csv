@@ -1,3 +1,3 @@
 metric,alpha,network_count,method_count,statistic,p_value,reject_null
-average_precision,0.05,8,3,14.25,0.000804733010124613,True
-roc_auc,0.05,8,3,12.25,0.002187491118182885,True
+average_precision,0.05,8,4,20.039999999999996,0.00016653305788026648,True
+roc_auc,0.05,8,4,16.360000000000007,0.0009566588996298365,True
