@@ -8,7 +8,14 @@ def test_method_registry():
     methods = config["methods"]
 
     assert len(families) == 6
-    assert len(methods) == 19
+    assert len(methods) == 20
+
+    assert methods["ia1"] == {
+        "name": "IA1",
+        "family": "enhanced_local",
+        "enabled": True,
+        "parameters": {},
+    }
 
     for method in methods.values():
         assert method["family"] in families

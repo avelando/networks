@@ -91,6 +91,12 @@ methods:
     enabled: true
     parameters: {}
 
+  ia1:
+    name: IA1
+    family: enhanced_local
+    enabled: true
+    parameters: {}
+
   ia2:
     name: IA2
     family: enhanced_local

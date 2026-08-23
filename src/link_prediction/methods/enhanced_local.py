@@ -5,6 +5,7 @@ from link_prediction.sampling import canonical_edge
 
 ENHANCED_LOCAL_METHODS = (
     "ra_cni",
+    "ia1",
     "ia2",
     "car_ra",
     "fsw",
@@ -267,6 +268,19 @@ def score_enhanced_local_candidates(
             )
         )
 
+        ia1 = sum(
+            (
+                len(
+                    neighbors[node]
+                    & common_neighbors
+                )
+                + 2.0
+            )
+            / degrees[node]
+            for node
+            in common_neighbors
+        )
+
         if common_count > 0:
             ia2 = sum(
                 (
@@ -311,12 +325,12 @@ def score_enhanced_local_candidates(
                         resource_allocation
                         + interaction
                     ),
+                "ia1":
+                    float(ia1),
                 "ia2":
                     float(ia2),
                 "car_ra":
                     float(car_ra),
-                "fsw":
-                    float(fsw),
             }
         )
 

@@ -59,6 +59,12 @@ def test_enhanced_local_scores():
     )
 
     assert scores[
+        "ia1"
+    ] == pytest.approx(
+        2.0
+    )
+
+    assert scores[
         "ia2"
     ] == pytest.approx(
         1.0
@@ -74,6 +80,64 @@ def test_enhanced_local_scores():
         "fsw"
     ] == pytest.approx(
         16 / 25
+    )
+
+
+def test_ia1_uses_per_common_neighbor_internal_links():
+    graph = nx.Graph()
+
+    graph.add_edges_from(
+        [
+            ("x", "a"),
+            ("x", "b"),
+            ("x", "c"),
+            ("y", "a"),
+            ("y", "b"),
+            ("y", "c"),
+            ("a", "b"),
+            ("b", "c"),
+            ("a", "p"),
+            ("c", "q"),
+        ]
+    )
+
+    candidates = pd.DataFrame(
+        {
+            "source": ["x"],
+            "target": ["y"],
+        }
+    )
+
+    scores = (
+        score_enhanced_local_candidates(
+            graph=graph,
+            candidates=candidates,
+        )
+        .iloc[0]
+    )
+
+    expected_ia1 = (
+        3.0 / 4.0
+        + 4.0 / 4.0
+        + 3.0 / 4.0
+    )
+
+    expected_ia2 = (
+        4.0 / 12.0
+        + 4.0 / 12.0
+        + 4.0 / 12.0
+    )
+
+    assert scores[
+        "ia1"
+    ] == pytest.approx(
+        expected_ia1
+    )
+
+    assert scores[
+        "ia2"
+    ] == pytest.approx(
+        expected_ia2
     )
 
 
@@ -172,6 +236,7 @@ def test_enhanced_local_zero_common_neighbors():
         .iloc[0]
     )
 
+    assert scores["ia1"] == 0.0
     assert scores["ia2"] == 0.0
     assert scores["car_ra"] == 0.0
     assert scores["fsw"] == 0.0
