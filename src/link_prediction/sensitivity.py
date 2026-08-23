@@ -480,7 +480,6 @@ def evaluate_parameter_sensitivity_fold(
                     **metrics,
                 }
             )
-            
         for iterations in (
             lit_iteration_values
         ):
