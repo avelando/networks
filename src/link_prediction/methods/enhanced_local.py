@@ -1,3 +1,5 @@
+import math
+
 import networkx as nx
 import pandas as pd
 
@@ -7,6 +9,8 @@ ENHANCED_LOCAL_METHODS = (
     "ra_cni",
     "ia1",
     "ia2",
+    "car_cn",
+    "car_aa",
     "car_ra",
     "fsw",
     "lit",
@@ -491,6 +495,23 @@ def score_enhanced_local_candidates(
         else:
             ia2 = 0.0
 
+        car_cn = (
+            common_count
+            * internal_edges
+        )
+
+        car_aa = sum(
+            len(
+                neighbors[node]
+                & common_neighbors
+            )
+            / math.log(
+                degrees[node]
+            )
+            for node
+            in common_neighbors
+        )
+
         car_ra = sum(
             len(
                 neighbors[node]
@@ -523,6 +544,10 @@ def score_enhanced_local_candidates(
                     float(ia1),
                 "ia2":
                     float(ia2),
+                "car_cn":
+                    float(car_cn),
+                "car_aa":
+                    float(car_aa),
                 "car_ra":
                     float(car_ra),
                 "fsw":

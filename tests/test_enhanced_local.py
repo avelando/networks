@@ -1,3 +1,5 @@
+import math
+
 import networkx as nx
 import pandas as pd
 import pytest
@@ -68,6 +70,18 @@ def test_enhanced_local_scores():
         "ia2"
     ] == pytest.approx(
         1.0
+    )
+
+    assert scores[
+        "car_cn"
+    ] == pytest.approx(
+        2.0
+    )
+
+    assert scores[
+        "car_aa"
+    ] == pytest.approx(
+        2.0 / math.log(3)
     )
 
     assert scores[
@@ -321,6 +335,8 @@ def test_enhanced_local_zero_common_neighbors():
 
     assert scores["ia1"] == 0.0
     assert scores["ia2"] == 0.0
+    assert scores["car_cn"] == 0.0
+    assert scores["car_aa"] == 0.0
     assert scores["car_ra"] == 0.0
     assert scores["fsw"] == 0.0
     assert scores["lit"] == 0.0

@@ -115,6 +115,18 @@ methods:
     enabled: true
     parameters: {}
 
+  car_cn:
+    name: CAR-CN
+    family: enhanced_local
+    enabled: true
+    parameters: {}
+
+  car_aa:
+    name: CAR-AA
+    family: enhanced_local
+    enabled: true
+    parameters: {}
+
   car_ra:
     name: CAR-RA
     family: enhanced_local

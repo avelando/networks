@@ -8,7 +8,7 @@ def test_method_registry():
     methods = config["methods"]
 
     assert len(families) == 6
-    assert len(methods) == 24
+    assert len(methods) == 26
 
     for method in methods.values():
         assert method["family"] in families
