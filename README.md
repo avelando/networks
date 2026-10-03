@@ -183,11 +183,17 @@ If you use this code or the accompanying materials, please cite:
 
 ```bibtex
 @inproceedings{sousa2026linkprediction,
-  title     = {Comparative Evaluation of Local and Quasi-Local Topological Methods
-               for Link Prediction in Complex Networks},
-  author    = {Sousa, Avelar Rodrigues de and Ferreira, Maykon Willyam de Sousa},
-  booktitle = {Symposium on Knowledge Discovery, Mining and Learning (KDMiLe)},
-  year      = {2026}
+ author = {Avelar Sousa and Maykon Willyam Ferreira},
+ title = {Comparative Evaluation of Local and Quasi-Local Topological Methods for Link Prediction in Complex Networks},
+ booktitle = {Anais do XIV Symposium on Knowledge Discovery, Mining and Learning},
+ location = {Cuiabá/MT},
+ year = {2026},
+ issn = {2763-8944},
+ pages = {97--104},
+ publisher = {SBC},
+ address = {Porto Alegre, RS, Brasil},
+ doi = {10.5753/kdmile.2026.31968},
+ url = {https://sol.sbc.org.br/index.php/kdmile/article/view/44975}
 }
 ```
 
